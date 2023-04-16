@@ -100,6 +100,14 @@ body{
   margin-bottom: 0.5rem;
 }
 
+.successmsg {
+  background-color: rgb(182, 255, 221);
+  color: rgb(34, 160, 40);
+  font-weight: bold;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .searchbox{
   width: 250px;
   border: 1px solid #0c88c2;
@@ -114,14 +122,14 @@ body{
 }
 
 .textbox-form {
-  width: 300px;
+  width: 280px;
   border: 1px solid #0c88c2;
   margin-left: 2px;
   font-size: 12px;
 }
 
 .dropdown{
-  width: 300px;
+  width: 270px;
   border: 1px solid #0c88c2;
   margin-left: 2px;
   font-size: 12px;
@@ -459,6 +467,10 @@ color: var(--color-white);
     margin-bottom: 0;
     line-height: 1.5;
     color: var(--white);
+  }
+
+  .modal-sm{
+    width: 450px;
   }
 
   main .date {

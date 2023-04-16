@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Axios from 'axios';
+//import Axios from 'axios';
+import Axios from '../../api/axios'
 import ListarProyectos from './ListarProyectos';
+import Swal from 'sweetalert2';
 //import AuthContext from '../../context/AuthProvider';
 //import { useNavigate } from 'react-router-dom';
 const Proyectos = () => {
@@ -11,7 +13,7 @@ const [searchQuery, setSearchQuery] = useState("");
 //  const [perPage, setPerPage] = useState(8);
 
 //let navigate = useNavigate();
-const axiosInstace = Axios.create({baseURL:process.env.REACT_APP_API_URL});
+//const axiosInstace = Axios.create({baseURL:process.env.REACT_APP_API_URL});
 
 const [addProyecto, setAddProyecto] = useState({
     nombre: '',
@@ -22,6 +24,7 @@ const [addProyecto, setAddProyecto] = useState({
     cuentasbancos: '', 
     email: '',
     claveemail: '',
+    estado: 'Activo',
     fechainicio: '', 
     fechavence: ''
 });
@@ -42,11 +45,12 @@ const handleAddProyecto = (e) => {
         cuentasbancos: addProyecto.cuentasbancos, 
         email: addProyecto.email,
         claveemail: addProyecto.claveemail,
+        estado: addProyecto.estado,
         fechainicio: addProyecto.fechainicio, 
         fechavence: addProyecto.fechavence
     }
 
-    Axios.post('http://localhost:3005/api/AddProyecto',{
+    Axios.post('/AddProyecto',{
         nombre: newProyecto.nombre,
         nit: newProyecto.nit,
         direccion: newProyecto.direccion,
@@ -55,6 +59,7 @@ const handleAddProyecto = (e) => {
         cuentasbancos: newProyecto.cuentasbancos, 
         email: newProyecto.email,
         claveemail: newProyecto.claveemail,
+        estado: newProyecto.estado,
         fechainicio: newProyecto.fechainicio, 
         fechavence: newProyecto.fechavence
       }).then(()=>{
@@ -66,21 +71,42 @@ const handleAddProyecto = (e) => {
 
 const handleDelete = (e, proyecto) => {
     e.preventDefault();
-    
-    if(window.confirm('Esta seguro de querer Eliminar este Registro?')){
+try {
+  Swal.fire({
+    icon:'warning',
+    title: 'Esta seguro de querer Inactivar este Registro?',
+    showConfirmButton: true,
+    confirmButtonText: 'Si',
+    showDenyButton : true,
+    position: 'top',
+  }).then((response)=>{
+    if(response.isConfirmed){
+      Axios.delete(`/proyectos/borrarProyecto/${proyecto.p_id}`,{
   
-     Axios.delete(`http://localhost:3005/api/proyectos/borrarProyecto/${proyecto.p_id}`,{
-  
-     }).then(()=>{
-      loadProyectos();
-  
-     })
+      }).then(()=>{
+       loadProyectos();
+   
+      })
     }
-  }
+  })
+  
+} catch (error) {
+  Swal.fire({
+    icon:'error',
+    title: 'Registro NO fue Inactivado',
+    //timer : 2000,
+    showConfirmButton: true,
+    //timerProgressBar:true,
+    position: 'top',
+    toast: true,
+    text: 'Error : ' + error
+  })
+}
+}
 
   const loadProyectos = async () => {
     //const response = await Axios.get('http://localhost:3005/api/proyectos');
-    const response = await axiosInstace.get('/proyectos');
+    const response = await Axios.get('/proyectos');
      setProyectos(response.data);
   };
 
@@ -88,7 +114,7 @@ const handleDelete = (e, proyecto) => {
     return Proyectos.filter(row=>row.nombre.toLowerCase().indexOf(searchQuery) > - 1);
   }
 
-  const fetchUrl = "http://localhost:3005/api/proyectos";
+  const fetchUrl = process.env.REACT_APP_API_URL+"/proyectos";
 
   useEffect(() => {
     async function fetchData(){
@@ -129,9 +155,10 @@ return (
             <th style={{width:"180px"}}>Ciudad</th>
             <th style={{width:"150px"}}>Telefono</th>
             <th style={{width:"180px"}}>Email</th>
-            <th style={{width:"100px"}}>Clave Email</th>
+            <th style={{width:"100px"}}>Clave Email</th>            
             <th style={{width:"130px"}}>Fecha Inicio</th>
             <th style={{width:"130px"}}>Fecha Vencimiento</th>
+            <th style={{width:"100px"}}>Estado</th>
             <th style={{width:"100px",textAlign:"center"}}>Accion</th>
           </tr>
   </thead>

@@ -1,6 +1,6 @@
 import moment from 'moment';
 const ListarTareas = ({tareas, userRole, handleEditTareaForm, handleViewTarea, handleDelete}) => {
-
+console.log(userRole);
     return (
       <>
 

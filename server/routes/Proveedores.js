@@ -5,7 +5,8 @@ const db = require("../DbConnect");
 const  verifyJWT  = require('../middleware/verifyJWT');
 
 router.get("/", (req, res) => {
-    const getsql = "SELECT pv.*,s.nombre AS servicio FROM proveedores pv INNER JOIN servicios s WHERE s.s_id = pv.s_id AND pv.status ='Activo' ORDER BY pv.nombre";
+    //const getsql = "SELECT pv.*,s.nombre AS servicio FROM proveedores pv INNER JOIN servicios s WHERE s.s_id = pv.s_id AND pv.estado ='Activo' ORDER BY pv.nombre";
+    const getsql = "SELECT pv.*,s.nombre AS servicio FROM proveedores pv INNER JOIN servicios s WHERE s.s_id = pv.s_id ORDER BY pv.nombre";
     db.query(getsql, async (err, result) => {
         //  console.log(result);
         res.json(result);
@@ -13,7 +14,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/list", (req, res) => {
-    const getsql = "SELECT pv.pv_id,pv.nombre FROM proveedores pv INNER JOIN servicios s WHERE s.s_id = pv.s_id AND pv.status='Activo' ORDER BY nombre";
+    const getsql = "SELECT pv.pv_id,pv.nombre FROM proveedores pv INNER JOIN servicios s WHERE s.s_id = pv.s_id AND pv.estado='Activo' ORDER BY nombre";
     db.query(getsql, async (err, result) => {
         if(err){
             console.log(err);
@@ -24,7 +25,7 @@ router.get("/list", (req, res) => {
 
 router.get("/list/byProyecto/:id", (req, res) => {
     const id = req.params.id;
-    const getsql = (`SELECT pv.pv_id, pv.nombre FROM proyectos_proveedores pp INNER JOIN proveedores pv ON pv.pv_id = pp.pv_id WHERE pp.p_id="${id}" AND pv.status='Activo' ORDER BY pv.nombre`);
+    const getsql = (`SELECT pv.pv_id, pv.nombre FROM proyectos_proveedores pp INNER JOIN proveedores pv ON pv.pv_id = pp.pv_id WHERE pp.p_id="${id}" AND pv.estado='Activo' ORDER BY pv.nombre`);
     db.query(getsql, async (err, result) => {
         if(err){
             console.log(err);
@@ -71,7 +72,7 @@ router.get("/getServiciofromPPbypv_id", (req, res) => {
 
 router.get("/byS_Id/:id", (req, res) => {
     const id = req.params.id;
-    const getsql = (`SELECT pv.*,s.nombre AS servicio FROM proveedores pv INNER JOIN servicios s WHERE s.s_id = pv.s_id AND pv.s_id = "${id}" AND pv.status='Activo' ORDER BY pv.nombre`);
+    const getsql = (`SELECT pv.*,s.nombre AS servicio FROM proveedores pv INNER JOIN servicios s WHERE s.s_id = pv.s_id AND pv.estado='Activo' AND pv.s_id = "${id}" ORDER BY pv.nombre`);
     db.query(getsql, async(err, result) => {
         res.json(result);
         // console.log(result);
@@ -97,9 +98,9 @@ router.post("/", (req, res) => {
     //console.log(req);
     // const proyecto = req.body;
    // console.log(req.body);
-     const {nombre,nit,cuenta,email,contacto,telefono,s_id} = req.body;
-     const addProveedorsql = "INSERT INTO proveedores (nombre,nit,cuenta,email,contacto,telefono,s_id) VALUES (?,?,?,?,?,?,?)";
-        db.query(addProveedorsql, [nombre,nit,cuenta, email,contacto, telefono,s_id], (err, result) => {
+     const {nombre,direccion,nit,cuenta,email,contacto,telefono,estado,s_id} = req.body;
+     const addProveedorsql = "INSERT INTO proveedores (nombre,direccion,nit,cuenta,email,contacto,telefono,estado,s_id) VALUES (?,?,?,?,?,?,?,?,?)";
+        db.query(addProveedorsql, [nombre,direccion,nit,cuenta, email,contacto, telefono,estado,s_id], (err, result) => {
         if (err) {
             console.log(err);
         }
@@ -120,14 +121,17 @@ router.post("/AddProveedorProyecto", (req, res) => {
 });
 
 router.put("/editarProveedor/:id", (req, res) => {
+    console.log(req.body);
     const id = req.params.id;
-    const {s_id,nombre, nit, contacto, telefono, cuenta, email} = req.body;
-    const putsql = (`UPDATE proveedores SET s_id=?,nombre=?,nit=?,contacto=?,telefono=?,cuenta=?,email=? WHERE pv_id=${id}`);
-    db.query(putsql,[s_id,nombre, nit, contacto, telefono, cuenta, email], (err, result) => {
+    const {s_id,nombre, direccion,nit, contacto, telefono, cuenta, email,estado} = req.body;
+    const putsql = (`UPDATE proveedores SET s_id=?,nombre=?,direccion=?,nit=?,contacto=?,telefono=?,cuenta=?,email=?,estado=? WHERE pv_id=${id}`);
+    db.query(putsql,[s_id,nombre, direccion, nit, contacto, telefono, cuenta, email,estado], (err, result) => {
         if (err){
-            console.log(err);
+            //console.log(err);
+            result.status(400).json({ message: "Proveedor NO se Modifico!"});
         } 
-        res.json(result);
+        res.status(200).json({ message: "Proveedor ha sido Modificado!"});
+        //res.json(result);
     })
 
 });
@@ -136,7 +140,7 @@ router.put("/editarProveedor/:id", (req, res) => {
 
 router.delete("/borrarProveedor/:id", (req, res) =>{
 const id = req.params.id;
-const deletesql = (`UPDATE proveedores SET status='Inactivo' WHERE pv_id=?`);
+const deletesql = (`UPDATE proveedores SET estado='Inactivo' WHERE pv_id=?`);
 db.query(deletesql, [id], (err, result) =>{
     if (err){
         console.log(err);

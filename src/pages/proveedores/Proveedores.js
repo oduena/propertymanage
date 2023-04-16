@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import Swal from 'sweetalert2';
 //import axios from 'axios';
-import axios from '../../api/axios';
+import Axios from '../../api/axios';
 import ListarProveedores from './ListarProveedores';
 
 //import { useNavigate } from 'react-router-dom';
@@ -18,21 +19,25 @@ const [selectedServicio, setSelectedServicio] = useState();
 const [addProveedor, setAddProveedor] = useState({
     s_id: '',
     nombre: '',
+    direccion: '',
     nit: '',
     contacto: '',
     telefono: '',
     cuenta: '', 
-    email: ''
+    email: '',
+    estado: 'Activo'
 });
 
 const [editFormData, setEditFormData] = useState({
     s_id: '',
     nombre: '',
+    direccion: '',
     nit: '',
     contacto: '',
     telefono: '',
     cuenta: '', 
-    email: ''
+    email: '',
+    estado: ''
 });
 
 const handleChange = (input) => (e) => {
@@ -47,64 +52,100 @@ const handleEditProveedorForm = (e, proveedor) => {
         pv_id : proveedor.pv_id,
         s_id: proveedor.s_id,
         nombre : proveedor.nombre,
+        direccion : proveedor.direccion,
         nit: proveedor.nit,
         contacto: proveedor.contacto,
         telefono: proveedor.telefono,
         cuenta: proveedor.cuenta, 
-        email: proveedor.email
+        email: proveedor.email,
+        estado: proveedor.estado
     }
     setEditFormData(formValues);
+    console.log(editFormData);
 }
 
 const handleEditFormClick = (input) => (e) => {
     e.preventDefault();
     setEditFormData({...editFormData, [input]: e.target.value });
+    console.log(editFormData);
   }
 
 
   const handleFormSave = (e) => {
     e.preventDefault();
-      const editProveedor = {
-      pv_id: editFormData.pv_id
-  }
 
-  axios.put(`http://localhost:3005/api/proveedores/editarProveedor/${editProveedor.pv_id}`,{
-    pv_id:editFormData.pv_id,
-    s_id:editFormData.s_id,
-    nombre:editFormData.nombre,
-    nit:editFormData.nit,
-    contacto:editFormData.contacto,
-    telefono:editFormData.telefono,
-    cuenta:editFormData.cuenta,
-    email:editFormData.email
-  }).then((response)=>{
-  
-    loadFilteredProveedores(selectedServicio);
-  
+try {
+const editProveedor = {
+ pv_id: editFormData.pv_id
+} 
+  //Axios.put(`http://localhost:3005/api/proveedores/editarProveedor/${editProveedor.pv_id}`,{
+    Axios.put(`/proveedores/editarProveedor/${editProveedor.pv_id}`,{ 
+      pv_id:editFormData.pv_id,
+      s_id:editFormData.s_id,
+      nombre:editFormData.nombre,
+      direccion: editFormData.direccion,
+      nit:editFormData.nit,
+      contacto:editFormData.contacto,
+      telefono:editFormData.telefono,
+      cuenta:editFormData.cuenta,
+      email:editFormData.email,
+      estado: editFormData.estado
+    }).then((response)=>{
+      //console.log(response);
+      if(response?.status === 200){
+        Swal.fire({
+          icon:'success',
+          title: 'Registro ha sido Modificado',
+          timer : 2000,
+          showConfirmButton: false,
+          timerProgressBar:true,
+          position: 'top',
+          heightAuto: false,
+          toast: true
+        })
+        loadFilteredProveedores(selectedServicio);
+      }
+    })
+
+} catch (error) {
+  Swal.fire({
+    icon:'error',
+    title: 'Registro NO fue Modificado',
+    timer : 2000,
+    showConfirmButton: false,
+    timerProgressBar:true,
+    position: 'top',
+    toast: true,
+    text: 'Error : ' + error
   })
-  
-  }
+}
+}
 
 const handleAddProveedor = (e) => {
     e.preventDefault();
     const newProveedor = {
         s_id : addProveedor.s_id,
         nombre : addProveedor.nombre,
+        direccion: addProveedor.direccion,
         nit : addProveedor.nit,
         contacto : addProveedor.contacto,
         telefono : addProveedor.telefono,
         cuenta : addProveedor.cuenta,
-        email : addProveedor.email
+        email : addProveedor.email,
+        estado : addProveedor.estado
     }
 
-    axios.post('http://localhost:3005/api/AddProveedor',{
+    //axios.post('http://localhost:3005/api/AddProveedor',{
+  Axios.post('/AddProveedor',{
         s_id: newProveedor.s_id,
         nombre: newProveedor.nombre,
+        direccion: newProveedor.direccion,
         nit : newProveedor.nit,
         contacto : newProveedor.contacto,
         telefono : newProveedor.telefono,
         cuenta : newProveedor.cuenta,
-        email : newProveedor.email
+        email : newProveedor.email,
+        estado : newProveedor.estado
       }).then(()=>{
 
      loadFilteredProveedores(selectedServicio);
@@ -114,31 +155,52 @@ const handleAddProveedor = (e) => {
 
 const handleDelete = (e, proveedor) => {
     e.preventDefault();
-    
-    if(window.confirm('Esta seguro de querer Eliminar este Registro?')){
+
+try {
+Swal.fire({
+  icon:'warning',
+  title: 'Esta seguro de querer Inactivar este Registro?',
+  showConfirmButton: true,
+  confirmButtonText: 'Si',
+  showDenyButton : true,
+  position: 'top',
+}).then((response)=>{
+if(response.isConfirmed){
+  Axios.delete(`/proveedores/borrarProveedor/${proveedor.pv_id}`,{
   
-     axios.delete(`http://localhost:3005/api/proveedores/borrarProveedor/${proveedor.pv_id}`,{
-  
-     }).then(()=>{
-        loadFilteredProveedores(selectedServicio);
-  
-     })
-    }
-  }
+  }).then(()=>{
+     loadFilteredProveedores(selectedServicio);
+
+  })
+}
+}) 
+} catch (error) {
+  Swal.fire({
+    icon:'error',
+    title: 'Registro NO fue Inactivado',
+    //timer : 2000,
+    showConfirmButton: true,
+    //timerProgressBar:true,
+    position: 'top',
+    toast: true,
+    text: 'Error : ' + error
+  })
+}
+}
 
 
   const loadFilteredProveedores = async (s_id) => {
         if(s_id==="All" || s_id===undefined){
-            const response = await axios.get('http://localhost:3005/api/proveedores');
+            const response = await Axios.get('/proveedores');
             setProveedores(response.data);
         }else{
-            const response = await axios.get(`http://localhost:3005/api/proveedores/byS_Id/${s_id}`);
+            const response = await Axios.get(`/proveedores/byS_Id/${s_id}`);
             setProveedores(response.data)
         }
    }
 
   const loadServicios = async () => {
-    const response = await axios.get('http://localhost:3005/api/servicios/list');
+    const response = await Axios.get('/servicios/list');
     //const response = await axios.get(GET_SERV_URL);
     
     setServicios(response.data);
@@ -148,11 +210,11 @@ const handleDelete = (e, proveedor) => {
     return Proveedores.filter(row=>row.nombre.toLowerCase().indexOf(searchQuery) > - 1);
   }
 
-const fetchUrl = "http://localhost:3005/api/proveedores";
+const fetchUrl = process.env.REACT_APP_API_URL+"/proveedores";
 
 useEffect(() => {
     async function fetchData(){
-        const data = await axios.get(fetchUrl);
+        const data = await Axios.get(fetchUrl);
         setProveedores(data.data);
         return data
     }
@@ -160,9 +222,9 @@ useEffect(() => {
     loadServicios();
     },[fetchUrl]);
 
-    function handleServicioChange(e){
-        setSelectedServicio(e.target.value);
-        loadFilteredProveedores(e.target.value);
+function handleServicioChange(e){
+ setSelectedServicio(e.target.value);
+ loadFilteredProveedores(e.target.value);
 }
  
 function getFilteredList(){
@@ -185,7 +247,8 @@ return (
             </div>
         <div className="card-body">
         <div className="d-sm-flex align-items-center justify-content-between">
-                <input
+        <div className="d-flex">
+        <input
               type="text"
               className="form-control searchbox"
               placeholder="Buscar por Nombre"              
@@ -205,20 +268,25 @@ return (
         )
       })}
       </select>
-            <button type="button" className="btn btn-sm btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#addProveedorForm"><i className='fas fa-circle-plus p-1 pr-10'></i> Agregar Proveedor</button>
-            </div>
-            <div className="body mt-4">
+        </div>
+        <div>
+      <button type="button" className="btn btn-sm btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#addProveedorForm"><i className='fas fa-circle-plus p-1 pr-10'></i> Agregar Proveedor</button>
+      </div>
+   </div>
+ <div className="body mt-4">
 <div className="tableContainer">
 <table className="table table-responsive table-hover">
   <thead className="thead-dark">
           <tr>            
             <th style={{width:"200px"}}>Nombre</th>
+            <th style={{width:"200px"}}>Direccion</th>
             <th style={{width:"180px"}}>NIT</th>
             <th style={{width:"180px"}}>Cuenta</th>
             <th style={{width:"250px"}}>Servicio</th>
             <th style={{width:"150px"}}>Contacto</th>
             <th style={{width:"150px"}}>Telefono</th>
             <th style={{width:"180px"}}>Email</th>
+            <th style={{width:"100px"}}>Estado</th>
             <th style={{width:"100px",textAlign:"center"}}>Accion</th>
           </tr>
   </thead>
@@ -266,13 +334,22 @@ return (
             <div className="col">
             <div className="form-group">
               <label htmlFor="" className="form-label">NIT</label>
-              <input type="text" name="nit" id="nit" required className="form-control textbox" placeholder="NIT del Proyecto" aria-describedby="helpId"
+              <input type="text" name="nit" id="nit" required className="form-control textbox" placeholder="NIT del Proveedor" aria-describedby="helpId"
               onChange={handleChange("nit")}>
               </input>
             </div>
             </div>
             </div>
-
+            <div className="row ml-4 mr-4 mb-4">
+            <div className="col">
+            <div className="form-group">
+            <label htmlFor="" className="form-label">Direccion</label>
+            <input type="text" name="direccion"  id="direccion" required className="form-control textbox" placeholder="Direccion" aria-describedby="helpId"
+              onChange={handleChange("direccion")}
+              ></input>
+            </div>
+            </div>
+            </div>
             <div className="row ml-4 mr-4 mb-4">
             <div className="col">
             <div className="form-group">
@@ -285,7 +362,7 @@ return (
             <div className="col">
             <div className="form-group">
               <label htmlFor="" className="form-label">Email</label>
-              <input type="text" name="email" id="email" required  className="form-control textbox" placeholder="Ciudad" aria-describedby="helpId"
+              <input type="text" name="email" id="email" required  className="form-control textbox" placeholder="Email" aria-describedby="helpId"
               onChange={handleChange("email")}></input>
             </div>
             </div>
@@ -294,8 +371,8 @@ return (
            <div className="row ml-4 mr-4 mb-4">
             <div className="col">
             <div className="form-group">
-              <label htmlFor="" className="form-label">Nombre del Contacto</label>
-              <input type="text" name="contacto" id="contacto" required className="form-control textbox" placeholder="Nombre del Contacto" aria-describedby="helpId"
+              <label htmlFor="" className="form-label">Contacto</label>
+              <input type="text" name="contacto" id="contacto" required className="form-control textbox" placeholder="Contacto" aria-describedby="helpId"
               onChange={handleChange("contacto")}
               ></input>
             </div>
@@ -313,15 +390,11 @@ return (
             <div className="col">
             <div className="form-group">
               <label htmlFor="" className="form-label">Servicio</label>
-              {/* <input type="email" name="email" id="email" required className="form-control textbox" placeholder="Email del Proyecto" aria-describedby="helpId"
-              onChange={handleChange("email")}></input> */}
             <select className="form-select dropdown"
             name="s_id"
             id="s_id"
-            //value={selectedServicio}
             onChange={handleChange("s_id")}
             >
-        {/* <option value="">Filtrar por Servicio</option> */}
       {servicios.map((item,index) => {
         return (
           <option value={item.s_id} key={item.s_id}>{item.nombre}</option>
@@ -332,6 +405,14 @@ return (
             </div>
             <div className="col">
             <div className="form-group">
+            <label htmlFor="" className="form-label">Estado</label>
+            <select className="form-select dropdown"
+            name="estado"
+            id="estado"
+            onChange={handleChange("estado")}
+            >
+          <option value="Activo">Activo</option>
+      </select>
             </div>
             </div>
             </div>
@@ -369,10 +450,22 @@ return (
             <div className="col">
             <div className="form-group">
               <label htmlFor="" className="form-label">NIT</label>
-              <input type="text" name="nit" id="nit" required className="form-control textbox" placeholder="NIT del Proyecto" aria-describedby="helpId"
+              <input type="text" name="nit" id="nit" required className="form-control textbox" placeholder="NIT del Proveedor" aria-describedby="helpId"
               value={editFormData.nit}
               onChange={handleEditFormClick("nit")}>
               </input>
+            </div>
+            </div>
+            </div>
+
+            <div className="row ml-4 mr-4 mb-4">
+            <div className="col">
+            <div className="form-group">
+            <label htmlFor="" className="form-label">Direccion</label>
+            <input type="text" name="direccion"  id="direccion" required className="form-control textbox" placeholder="Direccion" aria-describedby="helpId"
+            value={editFormData.direccion}
+              onChange={handleEditFormClick("direccion")}
+              ></input>
             </div>
             </div>
             </div>
@@ -390,7 +483,7 @@ return (
             <div className="col">
             <div className="form-group">
               <label htmlFor="" className="form-label">Email</label>
-              <input type="text" name="email" id="email" required  className="form-control textbox" placeholder="Ciudad" aria-describedby="helpId"
+              <input type="text" name="email" id="email" required  className="form-control textbox" placeholder="Email" aria-describedby="helpId"
               value={editFormData.email}
               onChange={handleEditFormClick("email")}></input>
             </div>
@@ -401,7 +494,7 @@ return (
             <div className="col">
             <div className="form-group">
               <label htmlFor="" className="form-label">Nombre del Contacto</label>
-              <input type="text" name="contacto" id="contacto" required className="form-control textbox" placeholder="Nombre del Contacto" aria-describedby="helpId"
+              <input type="text" name="contacto" id="contacto" required className="form-control textbox" placeholder="Contacto" aria-describedby="helpId"
               value={editFormData.contacto}
               onChange={handleEditFormClick("contacto")}
               ></input>
@@ -437,6 +530,17 @@ return (
             </div>
             <div className="col">
             <div className="form-group">
+            <label htmlFor="" className="form-label">Estado</label>
+            <select className="form-select dropdown"
+            name="estado"
+            id="estado"
+            value={editFormData.estado}
+            onChange={handleEditFormClick("estado")}
+            >
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
+      </select>
+
             </div>
             </div>
             </div>

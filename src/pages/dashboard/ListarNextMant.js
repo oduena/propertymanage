@@ -1,8 +1,6 @@
 import moment from "moment";
-//import { useNavigate } from 'react-router-dom';
-const ListarNextMant = ({nextmants}) => {
 
-   // let navigate = useNavigate();
+const ListarNextMant = ({nextmants}) => {
 
     return (
         <>

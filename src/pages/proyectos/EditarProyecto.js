@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import Axios from 'axios';
+import Axios from '../../api/axios';
 import moment from 'moment';
 
 const EditarProyecto = () => {
@@ -20,6 +20,7 @@ const [editBasicFormData, setEditBasicFormData] = useState({
     telefono: '',
     cuentasbancos: '',
     email: '',
+    estado:'',
     claveemail: '',
     fechainicio: '',
     fechavence: ''
@@ -41,7 +42,7 @@ const [editJurFormData, setEditJurFormData] = useState({
 });
 
 const loadProyecto = async () => {
-    const response = await Axios.get(`http://localhost:3005/api/proyectos/byId/${id}`);
+    const response = await Axios.get(`/proyectos/byId/${id}`);
      setProyecto(...response.data);
     //console.log(response.data); 
      handleEditProyectoForm(...response.data);
@@ -59,6 +60,7 @@ const formBasicValues = {
     cuentasbancos: response.cuentasbancos,
     email: response.email,
     claveemail: response.claveemail,
+    estado: response.estado,
     fechainicio: response.fechainicio,
     fechavence: response.fechavence
 }
@@ -108,7 +110,7 @@ const handleBasicFormSave = (e) => {
     //  nombre : editFormData.nombre
   }
   
-  Axios.put(`http://localhost:3005/api/proyectos/editarProyectoinfobasica/${editProyecto.p_id}`,{
+  Axios.put(`/proyectos/editarProyectoinfobasica/${editProyecto.p_id}`,{
     p_id: editBasicFormData.p_id,
     nombre : editBasicFormData.nombre,
     nit: editBasicFormData.nit,
@@ -118,6 +120,7 @@ const handleBasicFormSave = (e) => {
     cuentasbancos: editBasicFormData.cuentasbancos, 
     email: editBasicFormData.email,
     claveemail: editBasicFormData.claveemail,
+    estado: editBasicFormData.estado,
     fechainicio: editBasicFormData.fechainicio, 
     fechavence: editBasicFormData.fechavence
   }).then((response)=>{
@@ -136,7 +139,7 @@ const handleBasicFormSave = (e) => {
     //  nombre : editFormData.nombre
   }
   
-  Axios.put(`http://localhost:3005/api/proyectos/editarProyectoJur/${editProyecto.p_id}`,{
+  Axios.put(`/proyectos/editarProyectoJur/${editProyecto.p_id}`,{
     p_id: editJurFormData.p_id,
     matricula: editJurFormData.matricula,
     fechamatricula: editJurFormData.fechamatricula,
@@ -198,7 +201,7 @@ const handleBasicFormSave = (e) => {
        
            </div>
            <div className="row ml-4 mr-4 mb-4">
-           <div className="col">
+           <div className="col-lg-6">
            <div className="form-group">
              <label className="form-label">Direccion</label>
              <input type="text" name="direccion" value={ editBasicFormData.direccion } id="direccion" className="form-control" placeholder="Entre la direccion del Proyecto"
@@ -206,7 +209,7 @@ const handleBasicFormSave = (e) => {
              ></input>
            </div>
            </div>
-           <div className="col">
+           <div className="col-lg-3">
            <div className="form-group">
              <label className="form-label">Ciudad</label>
              {/* <input type="text" name="ciudad" value={ editBasicFormData.ciudad } id="ciudad" className="form-control" placeholder="Entre la Ciudad"
@@ -222,6 +225,22 @@ const handleBasicFormSave = (e) => {
             <option value={'Bogota'}>Bogota</option>
             <option value={'Cali'}>Cali</option>
             <option value={'Medellin'}>Medellin</option>
+            </select>
+           </div>
+           </div>
+           <div className="col-lg-3">
+           <div className="form-group">
+            <label className="form-label">Estado</label>
+            <select className="form-select dropdown"
+            name="estado"
+            id="estado"
+            value={editBasicFormData.estado}
+            onChange={handleEditBasicFormClick("estado")}
+            >
+            {/* <option value={''}></option>   */}
+            <option value={'Activo'}>Activo</option>
+            <option value={'Inactivo'}>Inactivo</option>
+            {/* <option value={'Medellin'}>Medellin</option> */}
             </select>
            </div>
            </div>

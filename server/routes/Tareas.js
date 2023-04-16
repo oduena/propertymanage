@@ -100,9 +100,24 @@ router.put("/editarTarea/:id", (req, res) => {
             res.json(result);
         })
     }
-    
-
 });
+
+router.delete("/borrarTarea/:id", (req, res) => {
+    const id = req.params.id;
+    //const {nombre} = req.body;
+    //console.log(id,nombre);
+    const deleteServicioSql = (`UPDATE tareas SET estado="Ejecutada" WHERE t_id=?`);
+       db.query(deleteServicioSql, [id], (err, result) => {
+       if (err) {
+           console.log(err);
+       }
+       res.status(200).json({ message: "Servicio ha sido Eliminado!"});
+       //res.json(result);
+   })
+});
+
+
+
 router.get("/getTareaNotasByt_id/:id", (req, res) => {
 
     const id = req.params.id;
@@ -116,12 +131,26 @@ router.get("/getTareaNotasByt_id/:id", (req, res) => {
     })
 });
 
+// router.get("/dashboard/:id", (req,res) => {
+//     const id = req.params.id;
+//     console.log(id);
+//     const getsql = (`SELECT t.*,p.nombre as proyecto,(SELECT u.nombre FROM users u WHERE u.id = t.asignadapor) As asignedby,\
+//     (SELECT u.nombre FROM users u WHERE u.id = t.asignadaa) As asignedto\
+//     FROM tareas t INNER JOIN proyectos p ON t.p_id = p.p_id WHERE t.asignadaa='${id}' AND t.estado <> 'Ejecutada' ORDER BY t.fechaasignada DESC`);
+//     db.query(getsql, async(err, result) => {
+//         if (err){
+//             console.log(err);
+//         }
+//         res.json(result);
+//     })
+// });
+
 router.get("/dashboard/porcentajecompletadas", (req, res) => {
 
     const getsql = ("SELECT count(t.t_id) AS 'TotalTareas', (SELECT count(t.t_id) FROM tareas t WHERE t.estado='Ejecutada') AS 'TotalCompleted' FROM tareas t");
     db.query(getsql, async(err, result) => {
         if(err) {
-            console,log(err);
+            console.log(err);
         }
         res.json(result);
     })

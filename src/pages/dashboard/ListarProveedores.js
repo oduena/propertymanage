@@ -2,8 +2,8 @@ import moment from "moment";
 
 const ListarProveedores = ({proveedores}) => {
 
-    return (
-        <>
+return (
+ <>
   
     {proveedores.map((proveedor)=>(
     <tr key={proveedor.pp_id}>

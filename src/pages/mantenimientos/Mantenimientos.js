@@ -1,10 +1,12 @@
 import React,{ useEffect,useState, useMemo } from "react";
 //import { useNavigate } from "react-router-dom";
-import Axios from 'axios';
+//import Axios from 'axios';
+import Axios from '../../api/axios';
 import ListarMantemientos from './ListarMantenimientos';
 import ListarMantenimientosCal from "./ListarMantenimientosCal";
 import ListarMantenimientoNotas from "./ListarMantenimientoNotas";
 import moment from "moment";
+import Swal from 'sweetalert2';
 //import AuthContext from "../../context/AuthProvider";
 
 const Mantenimientos = () => {
@@ -25,6 +27,7 @@ const Mantenimientos = () => {
     const [Servicio, setServicio] = useState([]);
     const [selectedProveedor, setSelectedProveedor] = useState([]);
     const [isChecked, setIsChecked] = useState(false);
+    const [isProveedorDisabled, setIsProveedorDisabled] = useState(true);
     //const [periodicidad, setPeriodicidad] = useState("");
     const [seguimientoNota, setSeguimientoNota] = useState("");
     const [seguimientoNotas, setSeguimientoNotas] = useState([]);
@@ -89,7 +92,8 @@ const Mantenimientos = () => {
     }
 
     const loadMantenimientoSeguimientoNotas = async (m_id) =>{
-      const response = await Axios.get(`http://localhost:3005/api/mantenimientos/getMantenimientoNotasBym_id/${m_id}`);
+      //const response = await Axios.get(`http://localhost:3005/api/mantenimientos/getMantenimientoNotasBym_id/${m_id}`);
+      const response = await Axios.get(`/mantenimientos/getMantenimientoNotasBym_id/${m_id}`);
       setSeguimientoNotas(response.data);
     //  console.log(seguimientoNotas);
     }
@@ -120,17 +124,32 @@ const Mantenimientos = () => {
         alert("Seleccione un Proyecto antes de continuar");
       }else{
         if(e.target.value==="All"){
-          alert("Seleccion Invalida");
+
+          //alert("Seleccion de Proveedor Invalida");
+
+          Swal.fire({
+            icon:'error',
+            title: 'Seleccion de Proveedor Invalido',
+            //timer : 2000,
+            showConfirmButton: true,
+            //timerProgressBar:true,
+            position: 'top',
+            //toast: true,
+            //text: 'Error : ' + error
+          })
+
           }else{
             let pv_id = e.target.value;
             let p_id = selectedProyecto;
 
 if(isChecked){
-  const response = await Axios.get(`http://localhost:3005/api/proveedores/getServiciobypv_id/${pv_id}`);
+  //const response = await Axios.get(`http://localhost:3005/api/proveedores/getServiciobypv_id/${pv_id}`);
+const response = await Axios.get(`/proveedores/getServiciobypv_id/${pv_id}`);
 setServicio(...response.data);
-//setPeriodicidad("1");
+
 }else{
-              const response = await Axios.get(`http://localhost:3005/api/proveedores/getServiciofromPPbypv_id`,{
+              //const response = await Axios.get(`http://localhost:3005/api/proveedores/getServiciofromPPbypv_id`,{
+              const response = await Axios.get(`/proveedores/getServiciofromPPbypv_id`,{
               params : {
                 p_id : p_id,
                 pv_id : pv_id
@@ -146,27 +165,32 @@ setServicio(...response.data);
 
     const getListProveedores = async (e) => {
       let p_id = e.target.value
-      const response = await Axios.get(`http://localhost:3005/api/proveedores/list/byProyecto/${p_id}`)
+      //const response = await Axios.get(`http://localhost:3005/api/proveedores/list/byProyecto/${p_id}`)
+      const response = await Axios.get(`/proveedores/list/byProyecto/${p_id}`);
       setProveedoresList(response.data);
       setSelectedProyecto(e.target.value);
+      setIsProveedorDisabled(false);
+      //console.log(isProveedorDisabled);
     }
 
 
     //const [searchQuery, setSearchQuery] = useState("");
     const loadListProyectos = async () => {
-        const response = await Axios.get('http://localhost:3005/api/proyectos/list');
+        //const response = await Axios.get('http://localhost:3005/api/proyectos/list');
+        const response = await Axios.get('/proyectos/list');
         setProyectos(response.data);
       };
 
       const loadListProveedores = async () => {
-        if(isChecked){
-          //console.log("Is NOt checked");
-          const response = await Axios.get(`http://localhost:3005/api/proveedores/list/byProyecto/${selectedProyecto}`)
+        if(isChecked){          
+          //const response = await Axios.get(`http://localhost:3005/api/proveedores/list/byProyecto/${selectedProyecto}`)
+          const response = await Axios.get(`/proveedores/list/byProyecto/${selectedProyecto}`);
           setProveedoresList(response.data);
         
         }else{
 
-          const response = await Axios.get('http://localhost:3005/api/proveedores/list');
+          //const response = await Axios.get('http://localhost:3005/api/proveedores/list');
+          const response = await Axios.get('/proveedores/list');
           setProveedoresList(response.data);
           //getListProveedores(selectedProyecto);
           
@@ -192,7 +216,8 @@ setServicio(...response.data);
           m_id: editFormData.m_id
       }
       
-      Axios.put(`http://localhost:3005/api/mantenimientos/editarMantenimiento/${editMantenimiento.m_id}`,{
+      //Axios.put(`http://localhost:3005/api/mantenimientos/editarMantenimiento/${editMantenimiento.m_id}`,{
+        Axios.put(`/mantenimientos/editarMantenimiento/${editMantenimiento.m_id}`,{
         p_id:editFormData.p_id,
         pv_id:editFormData.pv_id,
         //s_id:editFormData.s_id,
@@ -206,8 +231,7 @@ setServicio(...response.data);
         loadFilteredMantenimientos(selectedProyecto);
         setAddMantenimiento();
       })
-      
-      }
+}
 
       const handleAddMantenimiento = (e) => {
         e.preventDefault();
@@ -224,7 +248,8 @@ setServicio(...response.data);
         }
       //console.log(newMantenimiento);
        // const newServicios = [...Servicios, newServicio];
-        Axios.post('http://localhost:3005/api/AddMantenimiento',{
+        //Axios.post('http://localhost:3005/api/AddMantenimiento',{
+          Axios.post('/AddMantenimiento',{
             p_id: newMantenimiento.p_id,
             pv_id: newMantenimiento.pv_id,
             fecha : newMantenimiento.fecha,
@@ -248,7 +273,8 @@ setServicio(...response.data);
         username : 'Omar Duenas'
       }
 
-      Axios.post('http://localhost:3005/api/mantenimientos/AddMantenientoNotas',{
+      //Axios.post('http://localhost:3005/api/mantenimientos/AddMantenientoNotas',{
+      Axios.post('/mantenimientos/AddMantenientoNotas',{
         m_id : newMantNota.m_id,
         mant_nota : newMantNota.mant_nota,
         username : newMantNota.username
@@ -260,16 +286,9 @@ setServicio(...response.data);
 
     }
 
-    const handleProyectoChange =(e) => {
-        //console.log('from handle Proyecto change'+filterDate);
-       // setFilterDate("false");
-        //alert(filterDate);
-        
+    const handleProyectoChange = (e) => {
+           
         setSelectedProyecto(e.target.value);
-        
-        //console.log('from handle Proyecto after change'+filterDate);
-        //loadFilteredMantenimientos(e.target.value);
-      
       
     }
 
@@ -287,10 +306,12 @@ setServicio(...response.data);
 const handleFilterClick = async () => {
 if(selectedProyecto==="All"){
 if(dateend===""){
-  const response = await Axios.get('http://localhost:3005/api/mantenimientos');
+  //const response = await Axios.get('http://localhost:3005/api/mantenimientos');
+  const response = await Axios.get('/mantenimientos');
   setMantenimientos(response.data);
 }else{
-  const response = await Axios.get('http://localhost:3005/api/mantenimientos/byDate',{
+  //const response = await Axios.get('http://localhost:3005/api/mantenimientos/byDate',{
+    const response = await Axios.get('/mantenimientos/byDate',{
     params:{
         datestart:datestart,
         dateend:dateend
@@ -300,10 +321,12 @@ setMantenimientos(response.data);
 }
 }else{
   if(dateend===""){
-    const response = await Axios.get(`http://localhost:3005/api/mantenimientos/byP_Id/${selectedProyecto}`);
+    //const response = await Axios.get(`http://localhost:3005/api/mantenimientos/byP_Id/${selectedProyecto}`);
+    const response = await Axios.get(`/mantenimientos/byP_Id/${selectedProyecto}`);
     setMantenimientos(response.data)
   }else{
-    const response = await Axios.get('http://localhost:3005/api/mantenimientos/byDatebyPid',{
+    //const response = await Axios.get('http://localhost:3005/api/mantenimientos/byDatebyPid',{
+      const response = await Axios.get('/mantenimientos/byDatebyPid',{
       params:{
           datestart:datestart,
           dateend:dateend,
@@ -318,18 +341,22 @@ setMantenimientos(response.data);
 const handleFilterClickCal = async () => {
   if(selectedProyectoCal==="All"){
   if(selectedYear==="All"){
-    const response = await Axios.get('http://localhost:3005/api/mantenimientos/calendar');
+    //const response = await Axios.get('http://localhost:3005/api/mantenimientos/calendar');
+    const response = await Axios.get('/mantenimientos/calendar');
     setMantenimientosCal(response.data);
   }else{
-    const response = await Axios.get(`http://localhost:3005/api/mantenimientos/calendar/byYear/${selectedYear}`);
+    //const response = await Axios.get(`http://localhost:3005/api/mantenimientos/calendar/byYear/${selectedYear}`);
+    const response = await Axios.get(`/mantenimientos/calendar/byYear/${selectedYear}`);
   setMantenimientosCal(response.data);
   }
   }else{
     if(selectedYear==="All"){
-      const response = await Axios.get(`http://localhost:3005/api/mantenimientos/calendar/byP_Id/${selectedProyectoCal}`);
+      //const response = await Axios.get(`http://localhost:3005/api/mantenimientos/calendar/byP_Id/${selectedProyectoCal}`);
+      const response = await Axios.get(`/mantenimientos/calendar/byP_Id/${selectedProyectoCal}`);
       setMantenimientosCal(response.data)
     }else{
-      const response = await Axios.get('http://localhost:3005/api/mantenimientos/calendar/byYearbyPid',{
+      //const response = await Axios.get('http://localhost:3005/api/mantenimientos/calendar/byYearbyPid',{
+        const response = await Axios.get('/mantenimientos/calendar/byYearbyPid',{
         params:{
             yearid:selectedYear,            
             p_id: selectedProyectoCal
@@ -342,7 +369,8 @@ const handleFilterClickCal = async () => {
 
 
     const loadMantenimientosCal = async () => {
-      const response = await Axios.get('http://localhost:3005/api/mantenimientos/calendar')
+      //const response = await Axios.get('http://localhost:3005/api/mantenimientos/calendar')
+      const response = await Axios.get('/mantenimientos/calendar');
       setMantenimientosCal(response.data);
 
     }
@@ -350,10 +378,12 @@ const handleFilterClickCal = async () => {
  const loadFilteredMantenimientos = async () => {
   if(selectedProyecto==="All"){
     if(dateend===""){
-      const response = await Axios.get('http://localhost:3005/api/mantenimientos');
+      //const response = await Axios.get('http://localhost:3005/api/mantenimientos');
+      const response = await Axios.get('/mantenimientos');
       setMantenimientos(response.data);
     }else{
-      const response = await Axios.get('http://localhost:3005/api/mantenimientos/byDate',{
+      //const response = await Axios.get('http://localhost:3005/api/mantenimientos/byDate',{
+        const response = await Axios.get('/mantenimientos/byDate',{
         params:{
             datestart:datestart,
             dateend:dateend
@@ -363,10 +393,12 @@ const handleFilterClickCal = async () => {
     }
     }else{
       if(dateend===""){
-        const response = await Axios.get(`http://localhost:3005/api/mantenimientos/byP_Id/${selectedProyecto}`);
+        //const response = await Axios.get(`http://localhost:3005/api/mantenimientos/byP_Id/${selectedProyecto}`);
+        const response = await Axios.get(`/mantenimientos/byP_Id/${selectedProyecto}`);
         setMantenimientos(response.data)
       }else{
-        const response = await Axios.get('http://localhost:3005/api/mantenimientos/byDatebyPid',{
+        //const response = await Axios.get('http://localhost:3005/api/mantenimientos/byDatebyPid',{
+          const response = await Axios.get('/mantenimientos/byDatebyPid',{
           params:{
               datestart:datestart,
               dateend:dateend,
@@ -382,10 +414,26 @@ const handleIsFortuitoChange = () =>{
  setIsChecked(!isChecked);
  loadListProveedores();
 }
+
+const handleDelete = (e, mantenimiento) => {
+  e.preventDefault();
+  
+  if(window.confirm('Esta seguro de querer Eliminar este Registro?')){
+
+   Axios.delete(`/mantenimientos/borrarMantenimiento/${mantenimiento.m_id}`,{
+
+   }).then(()=>{
+    loadFilteredMantenimientos();
+
+   })
+  }
+}
     
-  const fetchUrl = "http://localhost:3005/api/mantenimientos";
+//const fetchUrl = "http://localhost:3005/api/mantenimientos";
+const fetchUrl = process.env.REACT_APP_API_URL+"/mantenimientos";
 
   useEffect(() => {
+    
     async function fetchData(){
         const response = await Axios.get(fetchUrl)
         setMantenimientos(response.data);
@@ -421,7 +469,7 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
 <nav className="mt-1">
   <div className="nav nav-tabs" id="nav-tab" role="tablist">
     <button className="nav-link active" id="nav-info-tab" data-bs-toggle="tab" data-bs-target="#nav-info" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Lista de Mantenimientos</button>
-    <button className="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Calendario Anual</button>
+    <button className="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button"  role="tab" aria-controls="nav-profile" aria-selected="false">Calendario Anual</button>
   </div>
 </nav>
 <div className="tab-content" id="nav-tabContent">
@@ -460,7 +508,6 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
   </div>
   <div>
   <button type="button" className="btn btn-sm btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#addMantenimientoForm"><i className='fas fa-circle-plus p-1 pr-10'></i> Agregar Mantenimiento</button>
-
   </div>
 
         </div>
@@ -475,8 +522,8 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
             <th style={{width:"80px"}}>Hora</th>
             <th style={{width:"120px"}}>Estado</th>
             <th style={{width:"120px"}}>Periodicidad</th>
-            <th style={{width:"150px"}}>Notas</th>
-            <th style={{width:"50px"}}>Accion</th>
+            <th style={{width:"180px"}}>Notas</th>
+            <th style={{width:"70px"}}>Accion</th>
           </tr>
   </thead>
   <tbody>
@@ -486,7 +533,7 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
   handleEditMantenimientoForm={handleEditMantenimientoForm}
   handleViewMantenimiento={handleViewMantenimiento}
   mantenimientos={filteredList}
-  //handleDelete={handleDelete}
+  handleDelete={handleDelete}
    />
     }
   </tbody>
@@ -522,7 +569,7 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
       style={{width:"290px"}}
       >
     <option value="All">Todos los Años</option>
-    <option value="2022">2022</option>
+    {/* <option value="2022">2022</option> */}
     <option value="2023">2023</option>
     <option value="2024">2024</option>
     <option value="2025">2025</option>
@@ -545,9 +592,9 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
 <table className="table table-responsive table-hover table-bordered">
   <thead className="thead-dark">
   <tr>
-          <th style={{width:"260px"}}>Proyecto</th>
-          <th style={{width:"260px"}}>Proveedor</th>
-          <th style={{width:"260px"}}>Servicio</th>
+          <th style={{width:"230px"}}>Proyecto</th>
+          <th style={{width:"230px"}}>Proveedor</th>
+          <th style={{width:"230px"}}>Servicio</th>
           <th style={{width:"110px"}}>Ene</th>
           <th style={{width:"110px"}}>Feb</th>
           <th style={{width:"110px"}}>Mar</th>
@@ -574,6 +621,9 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
   </tbody>
 </table>
 </div>
+<div className="clearfix">
+        <div className="hint-text">Total Registros: <b>{MantenimientosCal.length}</b> </div>
+    </div>
 </div>
 
 </div>
@@ -629,7 +679,7 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
      <select className="form-select dropdown"
      name="pv_id"
      id="pv_id"
-    // disabled
+     disabled={isProveedorDisabled}
     //value={ProveedoresList}
     //onChange={handleChange("pv_id")}
     onChange={(e)=>getServicio(e)}
@@ -662,14 +712,15 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
      <select className="form-select dropdown"
      name="estado"
      id="estado"
-     //value={editFormData.estado}
+     value="Pendiente"
      style={{width:"200px"}}
      onChange={handleChange("estado")}
      >  
+     {/* <option value="All">Seleccione un Estado</option> */}
         <option value="Pendiente">Pendiente</option>
         <option value="Programado">Programado</option>
-        <option value="Ejecutandose">Ejecutandose</option>
-        <option value="Ejecutado">Ejecutado</option>
+        {/* <option value="Ejecutandose">Ejecutandose</option>
+        <option value="Ejecutado">Ejecutado</option> */}
         
         </select>
    </div>

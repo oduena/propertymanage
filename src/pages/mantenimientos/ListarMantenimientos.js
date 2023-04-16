@@ -1,15 +1,13 @@
 import moment from "moment";
-//import { useNavigate } from 'react-router-dom';
-const ListarMantenimientos = ({mantenimientos, handleEditMantenimientoForm, handleViewMantenimiento}) => {
 
-   // let navigate = useNavigate();
+const ListarMantenimientos = ({mantenimientos, handleEditMantenimientoForm, handleViewMantenimiento, handleDelete}) => {
 
-    return (
-        <>
+return (
+<>
   
-        {mantenimientos.map((mantenimiento)=>(
-            <tr key={mantenimiento.m_id}>
-        <td>{mantenimiento.proyecto}</td>
+{mantenimientos.map((mantenimiento)=>(
+<tr key={mantenimiento.m_id}>
+ <td>{mantenimiento.proyecto}</td>
     <td>{mantenimiento.proveedor}</td>
     <td>{mantenimiento.servicio}</td>
     <td>{moment(mantenimiento.fecha).format('YYYY-MM-DD')}</td>
@@ -24,7 +22,7 @@ const ListarMantenimientos = ({mantenimientos, handleEditMantenimientoForm, hand
     <td>{mantenimiento.notas}</td>
     <td style={{textAlign:"center"}}>
             <div className="row">
-              <div className="col-lg-6">
+              <div className="col-lg-4">
               <i className="far fa-eye fa-lg" 
               title="Ver Detalles"
               style={{color:"blue",cursor:"pointer"}}
@@ -34,19 +32,20 @@ const ListarMantenimientos = ({mantenimientos, handleEditMantenimientoForm, hand
               onClick={(e)=>handleViewMantenimiento(e, mantenimiento)}></i>
               
               </div>
-              <div className='col-lg-6'>
+              <div className='col-lg-4'>
               <i className="far fa-edit fa-lg"
               title="Editar"
               style={{color:"blue",cursor:"pointer"}}
               data-bs-toggle="modal"
               data-bs-target="#editMantenimientoForm"
               onClick={(e) => handleEditMantenimientoForm(e, mantenimiento)}></i>
-              {/* <i className="far fa-trash-alt fa-lg"
+              </div>
+              <div className='col-lg-4'>
+              <i className="far fa-trash-alt fa-lg"
               title="Borrar"
               style={{color:"red",cursor:"pointer"}}
-              onClick={(e) => handleDelete(e, proveedor)}
-              ></i> */}
-              
+              onClick={(e) => handleDelete(e, mantenimiento)}
+              ></i>              
               </div>
             </div>
           </td>

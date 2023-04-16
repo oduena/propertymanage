@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import Axios from 'axios';
+import Axios from '../../api/axios';
 import ListarUsuarios from './ListarUsuarios';
 
 const Usuarios = () => {
@@ -41,7 +41,7 @@ try {
         estado: addUsuario.estado,
         password : addUsuario.password
 }
-    Axios.post('http://localhost:3005/api/AddUsuario',{
+    Axios.post('/AddUsuario',{
         nombre: newUsuario.nombre,
         email : newUsuario.email,
         role : newUsuario.role,
@@ -86,13 +86,13 @@ const handleFormSave = (e) => {
     id: editFormData.id
 }
 
-Axios.put(`http://localhost:3005/api/usuarios/editarUsuario/${editUsuario.id}`,{
+Axios.put(`/usuarios/editarUsuario/${editUsuario.id}`,{
   id:editFormData.id,
   nombre:editFormData.nombre,
   email:editFormData.email,
   role:editFormData.role,
-  estado:editFormData.estado,
-  password:editFormData.password,
+  estado:editFormData.estado
+  //password:editFormData.password,
   
 }).then((response)=>{
 
@@ -105,15 +105,16 @@ Axios.put(`http://localhost:3005/api/usuarios/editarUsuario/${editUsuario.id}`,{
 
 const loadUsuarios = async () => {
    
-        const response = await Axios.get('http://localhost:3005/api/usuarios');
+        const response = await Axios.get('/usuarios');
         setUsuarios(response.data);
 }
 
-const fetchUrl = "http://localhost:3005/api/usuarios";
 
 function search() {
     return Usuarios.filter(row=>row.nombre.toLowerCase().indexOf(searchQuery) > - 1);
    }
+
+const fetchUrl = process.env.REACT_APP_API_URL+"/usuarios";
 
 useEffect(() => {
     async function fetchData(){
@@ -177,7 +178,7 @@ handleEditUsuarioForm={handleEditUsuarioForm}
 </div>
    {/* Add Usuarios Modal Begin*/}
    <div className="modal fade" id="addUsuarioForm" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div className="modal-dialog modal-md">
+      <div className="modal-dialog modal-sm">
         <form onSubmit={handleAddUsuario}>
         <div className="modal-content">
           <div className="modal-header primary">
@@ -230,7 +231,7 @@ handleEditUsuarioForm={handleEditUsuarioForm}
 
  {/* Edit Usuarios Modal Begin*/}
  <div className="modal fade" id="editUsuarioForm" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div className="modal-dialog modal-md">
+      <div className="modal-dialog modal-sm">
         <form onSubmit={handleFormSave}>
         <div className="modal-content">
           <div className="modal-header primary">
@@ -238,9 +239,9 @@ handleEditUsuarioForm={handleEditUsuarioForm}
           </div>
           <div className="modal-body">
           <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
-            <div className="row ml-4 mr-4 mb-4">
+            <div className="row ml-4 mr-4">
             <div className="col">
-            <div className="form-group">
+            <div className="form-group mb-4">
               <label htmlFor="nombre" className="form-label">Nombre del Usuario</label>
               <input type="text" name="nombre" id="nombre" required className="form-control textbox" placeholder="Nombre del Usuario" aria-describedby="helpId"              
               value={editFormData.nombre}
@@ -248,7 +249,7 @@ handleEditUsuarioForm={handleEditUsuarioForm}
               </input>
             </div>
             </div>
-            <div className="form-group">
+            <div className="form-group mb-4">
               <label htmlFor="" className="form-label">Email</label>
               <input type="text" name="email" id="email" required className="form-control textbox" placeholder="email" aria-describedby="helpId"
               value={editFormData.email}
@@ -256,7 +257,7 @@ handleEditUsuarioForm={handleEditUsuarioForm}
               </input>
             </div>
 
-            <div className="form-group">
+            <div className="form-group mb-4">
               <label htmlFor="" className="form-label">Role</label>
               <select className="form-select dropdown"
             name="role"
@@ -269,7 +270,7 @@ handleEditUsuarioForm={handleEditUsuarioForm}
         <option value="Usuario">Usuario</option>
       </select>
             </div>
-            <div className="form-group">
+            <div className="form-group mb-4">
               <label htmlFor="" className="form-label">Estado</label>
               <select className="form-select dropdown"
             name="estado"
@@ -282,12 +283,12 @@ handleEditUsuarioForm={handleEditUsuarioForm}
         <option value="Inactivo">Inactivo</option>
       </select>
             </div>
-            <div className="form-group">
+            {/* <div className="form-group">
               <label htmlFor="" className="form-label">Password</label>
               <input type="password" name="password" id="password" required  className="form-control textbox" placeholder="Password" aria-describedby="helpId"
               value={editFormData.password}
               onChange={handleEditFormClick("password")}></input>
-            </div>
+            </div> */}
             </div>
 
             <br/>
@@ -301,10 +302,6 @@ handleEditUsuarioForm={handleEditUsuarioForm}
       </div>
     </div>
     {/* Add Usuario Modal End*/}
-
-
-
-
 </div>
 </div>  
 </>

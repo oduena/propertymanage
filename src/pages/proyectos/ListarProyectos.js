@@ -2,15 +2,13 @@
 import { useNavigate } from 'react-router-dom';
 //import EditarModal from './EditarModal';
 import  moment from 'moment';
-const ListarProyectos = ({proyecto, handleDelete, proyectos}) => {
+const ListarProyectos = ({handleDelete, proyectos}) => {
     //const [openEditModal, setOpenEditModal] = useState(false);
   let navigate = useNavigate();
 
     return (
       <>
-       {/* {proyectos.filter(row=>row.nombre.toLowerCase().indexOf(nameFilter) > - 1).map((proyecto)=>( */}
-      
-      {/* {proyectos.filter(row=>row.nombre.toLowerCase().indexOf(nameFilter) > - 1).map((proyecto)=>( */}
+
       {proyectos.map((proyecto)=>(
       
       <tr key={proyecto.p_id}>
@@ -22,10 +20,12 @@ const ListarProyectos = ({proyecto, handleDelete, proyectos}) => {
       <td>{proyecto.telefono}</td>
       <td>{proyecto.email}</td>
       <td>{proyecto.claveemail}</td>
+      
       <td>{moment(proyecto.fechainicio).format('YYYY-MM-DD')}</td>
-      {/* {proyecto.daysleft >= 30 ? fechavencelabel="success" : fechavencelabel="warning"} */}
+      
       <td><span className={proyecto.daysleft >= 30 ? "label label-success" : proyecto.daysleft < 29 && proyecto.daysleft > 14 ? "label label-warning" :           
         "label label-danger"}>{moment(proyecto.fechavence).format('YYYY-MM-DD')}</span></td>
+        <td><span className={proyecto.estado==='Activo' ? "label label-success" : "label label-warning"}>{proyecto.estado}</span></td>
          <td style={{textAlign:"center"}}>
           <div className="row">
             <div className="col-lg-6">

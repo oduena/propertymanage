@@ -1,5 +1,5 @@
 import moment from 'moment';
-const ListarProveedoresProyecto = ({proveedoresproyecto,handleEditProyectoProveedorForm})=>{
+const ListarProveedoresProyecto = ({proveedoresproyecto,handleEditProyectoProveedorForm,handleDeleteProveedorProyecto})=>{
     return (
         <>
     {proveedoresproyecto.map((item) => (
@@ -16,6 +16,8 @@ const ListarProveedoresProyecto = ({proveedoresproyecto,handleEditProyectoProvee
           <td><span className={item.daysleft >= 30 ? "label label-success" : item.daysleft < 29 && item.daysleft > 14 ? "label label-warning" :           
     "label label-danger"}>{moment(item.fechavence).format('YYYY-MM-DD')}</span></td>
         <td>
+            <div className="row">
+            <div className="col-lg-6">
           <i className="far fa-edit fa-lg"
           title="Editar"
           style={{color:"blue",cursor:"pointer"}}
@@ -23,8 +25,21 @@ const ListarProveedoresProyecto = ({proveedoresproyecto,handleEditProyectoProvee
           data-bs-target="#editProveedorProyectoForm"
           onClick={(e) => handleEditProyectoProveedorForm(e, item)}
           >
-          </i>
+          </i> 
+          </div>
+          <div className="col-lg-6">
+            <i className="far fa-trash-alt fa-lg"
+            title="Borrar"
+            style={{color:"red",cursor:"pointer"}}
+            onClick={(e) => handleDeleteProveedorProyecto(e, item)}
+            ></i>
+            </div>
+          </div>
+    
+    
+    
           </td>
+    
           </tr>
 
     ))}

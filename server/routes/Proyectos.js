@@ -5,7 +5,8 @@ const db = require("../DbConnect");
 const  verifyJWT  = require('../middleware/verifyJWT');
 
 router.get("/", (req, res) => {
-    const getsql = "SELECT p_id,nombre, nit, direccion, ciudad, telefono, cuentasbancos, email, claveemail, fechainicio, fechavence,datediff(fechavence,CURRENT_DATE) as daysleft FROM proyectos WHERE status='Activo' ORDER BY nombre";
+    //const getsql = "SELECT p_id,nombre, nit, direccion, ciudad, telefono, cuentasbancos, email, claveemail, estado, fechainicio, fechavence,datediff(fechavence,CURRENT_DATE) as daysleft FROM proyectos WHERE estado='Activo' ORDER BY nombre";
+    const getsql = "SELECT p_id,nombre, nit, direccion, ciudad, telefono, cuentasbancos, email, claveemail, estado, fechainicio, fechavence,datediff(fechavence,CURRENT_DATE) as daysleft FROM proyectos ORDER BY nombre";
     db.query(getsql, async (err, result) => {
         //  console.log(result);
         res.json(result);
@@ -13,7 +14,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/list", (req, res) => {
-    const getsql = "SELECT p.p_id,p.nombre FROM proyectos p WHERE status='Activo' ORDER BY nombre";
+    const getsql = "SELECT p.p_id,p.nombre FROM proyectos p WHERE estado='Activo' ORDER BY nombre";
     db.query(getsql, async (err, result) => {
         //  console.log(result);
         res.json(result);
@@ -46,9 +47,24 @@ pv.email as email, pv.telefono as telefono, pv.pv_id,(SELECT s.nombre FROM servi
      })
 });
 
+
+router.get("/tareasbyproyecto/:id",(req,res) =>{
+    const id = req.params.id;
+    const getsql = (`SELECT t.t_id, t.descripcion, t.fechaterminada, p.p_id, p.nombre as proyecto,
+    (SELECT u.nombre FROM users u WHERE u.id = t.asignadapor) As asignadapor,
+    (SELECT u.nombre FROM users u WHERE u.id = t.asignadaa) As asignadaa,
+    t.fechaasignada, t.estado FROM tareas t, proyectos p WHERE t.p_id = p.p_id AND t.estado <> 'Ejecutada' AND t.p_id = "${id}" ORDER BY fechaasignada ASC`);
+    db.query(getsql, async (err, result) => {
+        if(err){
+            console.log(err);
+        }
+        res.json(result);
+    })
+});
+
 router.get("/dashboard", (req, res) => {
     
-   const getsql=("SELECT p_id,nombre,fechainicio,fechavence, datediff(fechavence,CURRENT_DATE) as daysleft FROM proyectos WHERE status='Activo' ORDER BY fechavence ASC LIMIT 10");
+   const getsql=("SELECT p_id,nombre,fechainicio,fechavence, datediff(fechavence,CURRENT_DATE) as daysleft FROM proyectos WHERE estado='Activo' ORDER BY fechavence ASC LIMIT 10");
     db.query(getsql, async (err, result) => {
         if(err){
             console.log(err);
@@ -59,7 +75,7 @@ router.get("/dashboard", (req, res) => {
 
 router.get("/dashboard/totalproyectos", (req, res) => {
     
-    const getsql=("SELECT count(proyectos.p_id) As TotalProyectos FROM proyectos WHERE status='Activo'");
+    const getsql=("SELECT count(proyectos.p_id) As TotalProyectos FROM proyectos WHERE estado='Activo'");
      db.query(getsql, async (err, result) => {
          if(err){
              console.log(err);
@@ -72,9 +88,9 @@ router.post("/", (req, res) => {
     //console.log(req);
     // const proyecto = req.body;
    // console.log(req.body);
-     const {nombre, direccion, nit, ciudad, telefono, cuentasbancos, email, claveemail, fechainicio, fechavence} = req.body;
-     const addProyectosql = "INSERT INTO proyectos (nombre,nit,direccion,ciudad,telefono,cuentasbancos,email,claveemail,fechainicio,fechavence) VALUES (?,?,?,?,?,?,?,?,?,?)";
-        db.query(addProyectosql, [nombre, nit, direccion, ciudad, telefono, cuentasbancos, email, claveemail, fechainicio, fechavence], (err, result) => {
+     const {nombre, direccion, nit, ciudad, telefono, cuentasbancos, email, claveemail, estado, fechainicio, fechavence} = req.body;
+     const addProyectosql = "INSERT INTO proyectos (nombre,nit,direccion,ciudad,telefono,cuentasbancos,email,claveemail,estado,fechainicio,fechavence) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        db.query(addProyectosql, [nombre, nit, direccion, ciudad, telefono, cuentasbancos, email, claveemail, estado,fechainicio, fechavence], (err, result) => {
         if (err) {
             console.log(err);
         }
@@ -84,10 +100,10 @@ router.post("/", (req, res) => {
 
 router.put("/editarProyectoinfobasica/:id", (req, res) => {
     const id = req.params.id;
-    const {nombre, direccion, nit, ciudad, telefono, cuentasbancos, email, claveemail, fechainicio, fechavence} = req.body;
-    const putsql = (`UPDATE proyectos SET nombre=?,nit=?,direccion=?,ciudad=?,telefono=?,cuentasbancos=?,email=?,claveemail=?,fechainicio=?,fechavence=?
+    const {nombre, direccion, nit, ciudad, telefono, cuentasbancos, email, claveemail, estado,fechainicio, fechavence} = req.body;
+    const putsql = (`UPDATE proyectos SET nombre=?,nit=?,direccion=?,ciudad=?,telefono=?,cuentasbancos=?,email=?,claveemail=?,estado=?,fechainicio=?,fechavence=?
     WHERE p_id=${id}`);
-    db.query(putsql,[nombre, nit, direccion, ciudad, telefono, cuentasbancos, email, claveemail, fechainicio, fechavence], (err, result) => {
+    db.query(putsql,[nombre, nit, direccion, ciudad, telefono, cuentasbancos, email, claveemail, estado, fechainicio, fechavence], (err, result) => {
         if (err){
             console.log(err);
         } 
@@ -117,8 +133,10 @@ router.put("/editarProyectoProveedor/:id", (req, res) => {
     db.query(putsql,[pv_id, fechainicio, fechavence, periodicidad], (err, result) => {
         if (err){
             console.log(err);
+            result.status(400).json({ message: "Proveedor NO se Modifico!"});
         } 
-        res.json(result);
+        //res.json(result);
+        res.status(200).json({ message: "Proveedor ha sido Modificado!"});
     })
 
 });
@@ -126,7 +144,7 @@ router.put("/editarProyectoProveedor/:id", (req, res) => {
 
 router.delete("/borrarProyecto/:id", (req, res) =>{
 const id = req.params.id;
-const deletesql = (`UPDATE proyectos SET status='Inactivo' WHERE p_id=?`);
+const deletesql = (`UPDATE proyectos SET estado='Inactivo' WHERE p_id=?`);
 db.query(deletesql, [id], (err, result) =>{
     if (err){
         console.log(err);
@@ -134,6 +152,18 @@ db.query(deletesql, [id], (err, result) =>{
     res.json(result);
 })
 });
+
+router.delete("/borrarProveedorProyecto/:id", (req, res) =>{
+    const id = req.params.id;
+    //console.log(id);
+    const deletesql = (`DELETE FROM  proyectos_proveedores WHERE pp_id=?`);
+    db.query(deletesql, [id], (err, result) =>{
+        if (err){
+            console.log(err);
+        }
+        res.json(result);
+    })
+    });
 
 
 module.exports = router;

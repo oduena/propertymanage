@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import Swal from 'sweetalert2';
 //import { useNavigate } from 'react-router-dom';
-import Axios from 'axios';
+//import Axios from 'axios';
+import Axios from '../../api/axios';
 //import { axiosPrivate } from '../../api/axios';
 import ListarServicios from './ListarServicios';
 //import AuthContext from '../../context/AuthProvider';
@@ -9,6 +11,10 @@ const Servicios = () => {
 
 const [Servicios, setServicios] = useState([]);
 const [searchQuery, setSearchQuery] = useState("");
+//const [errMsg, setErrMsg] = useState('');
+//const [successMsg, setSuccessMsg] = useState('');
+//const errRef = useRef();
+//const successRef = useRef();
 //const [nombre, setNombre] = useState("");
 //const { auth } = useContext(AuthContext);
 const [addServicio, setAddServicio] = useState({
@@ -49,20 +55,46 @@ const handleEditFormClick = (input) => (e) => {
 const handleFormSave = (e) => {
   e.preventDefault();
 
-  const editServicio = {
+try {
+    const editServicio = {
     s_id: editFormData.s_id
-  //  nombre : editFormData.nombre
 }
 
-Axios.put(`http://localhost:3005/api/servicios/editarServicio/${editServicio.s_id}`,{
-  s_id:editFormData.s_id,
-  nombre:editFormData.nombre
-}).then((response)=>{
-
-  loadServicios();
-
+//Axios.put(`http://localhost:3005/api/servicios/editarServicio/${editServicio.s_id}`,{
+  Axios.put(`/servicios/editarServicio/${editServicio.s_id}`,{
+    s_id:editFormData.s_id,
+    nombre:editFormData.nombre
+  }).then((response)=>{
+    if(response?.status === 200) {
+      //setSuccessMsg("Servicio ha sido Modificado!");
+      Swal.fire({
+        icon:'success',
+        title: 'Rregistro ha sido Modificado',
+        timer : 2000,
+        showConfirmButton: false,
+        timerProgressBar:true,
+        position: 'top',
+        heightAuto: false,
+        toast: true
+      })
+      //setErrMsg("");
+      loadServicios();
+    }
+    
+  })
+} catch (error) {
+Swal.fire({
+  icon:'error',
+  title: 'Registro NO fue Modificado',
+  timer : 2000,
+  showConfirmButton: false,
+  timerProgressBar:true,
+  position: 'top',
+  toast: true,
+  text: 'Error : ' + error
 })
-
+//setSuccessMsg("");
+}
 }
 
 const handleAddServicio = (e) => {
@@ -72,7 +104,8 @@ const handleAddServicio = (e) => {
     }
 
    // const newServicios = [...Servicios, newServicio];
-    Axios.post('http://localhost:3005/api/AddServicio',{
+    //Axios.post('http://localhost:3005/api/AddServicio',{
+      Axios.post('/AddServicio',{
         nombre: newServicio.nombre
       }).then(()=>{
 
@@ -85,24 +118,52 @@ const handleAddServicio = (e) => {
 const handleDelete = (e, servicio) => {
   e.preventDefault();
   
-  if(window.confirm('Esta seguro de querer Eliminar este Registro?')){
+try {
+  Swal.fire({
+    icon:'warning',
+    title: 'Esta seguro de querer Inactivar este Registro?',
+    showConfirmButton: true,
+    confirmButtonText: 'Si',
+    showDenyButton : true,
+    position: 'top',
+  }).then((response)=>{
+    if(response.isConfirmed){
+      Axios.delete(`/servicios/borrarServicio/${servicio.s_id}`,{
 
-   Axios.delete(`http://localhost:3005/api/servicios/borrarServicio/${servicio.s_id}`,{
+      }).then(()=>{
+       loadServicios();
+   
+      })
+    }
 
-   }).then(()=>{
-    loadServicios();
+  })
 
-   })
-  }
+} catch (error) {
+  Swal.fire({
+  icon:'error',
+  title: 'Registro NO fue Inactivado',
+  showConfirmButton: true,
+  position: 'top',
+  toast: true,
+  text: 'Error : ' + error
+})
+
+}
+
+
+
+  
 }
 
 const loadServicios = async () => {
-    const response = await Axios.get('http://localhost:3005/api/servicios');
+    //const response = await Axios.get('http://localhost:3005/api/servicios');
+    const response = await Axios.get('/servicios');
     setServicios(response.data);
   };
 
 
-const fetchUrl = "http://localhost:3005/api/servicios";
+//const fetchUrl = "http://localhost:3005/api/servicios";
+const fetchUrl = process.env.REACT_APP_API_URL+"/servicios";
 
 useEffect(() => {
   async function fetchData(){
@@ -128,6 +189,9 @@ function search() {
   <h2 className="mb-2 mt-2">Servicios</h2>
   </div>
   <div className="card-body">
+  {/* {errMsg !== "" ? (<p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>)
+   : <p ref={successRef} className={successMsg ? "successmsg" : "offscreen"} aria-live="assertive">{successMsg}</p>} */}
+  
   <div className="d-sm-flex align-items-center justify-content-between">
                <input
               type="text"

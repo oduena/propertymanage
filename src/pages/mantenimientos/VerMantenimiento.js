@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom';
-import Axios from 'axios';
-import moment from 'moment';
+//import Axios from 'axios';
+import Axios from '../../api/axios';
+//import moment from 'moment';
 
 export const VerMantenimiento = () => {
 
@@ -10,7 +11,8 @@ const [Mantenimiento, setMantenimiento] = useState([]);
     let { id } = useParams();
 
 const loadMantenimiento = async () => {
-const response = await Axios.get(`http://localhost:3005/api/mantenimientos/byId/${id}`);
+//const response = await Axios.get(`http://localhost:3005/api/mantenimientos/byId/${id}`);
+const response = await Axios.get(`/mantenimientos/byId/${id}`);
 setMantenimiento(...response.data);
 };
 

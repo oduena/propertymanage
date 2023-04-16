@@ -1,9 +1,6 @@
 import moment from "moment";
-//import { useNavigate } from 'react-router-dom';
-const ListarMantenimientoNotas = ({mantenimientonotas}) => {
 
-//let navigate = useNavigate();
-//console.log(mantenimientonotas);
+const ListarMantenimientoNotas = ({mantenimientonotas}) => {
 
 return (
  <>

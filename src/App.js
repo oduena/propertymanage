@@ -4,6 +4,7 @@ import './styles/Pagination.css';
 
 import Layout from './pages/Layout';
 import Dashboard from './pages/dashboard/Dashboard';
+import Dashprofile from './pages/dashboard/Dashprofile';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
 import Proyectos from './pages/proyectos/Proyectos';
@@ -34,6 +35,11 @@ function App() {
               <Route path='/dashboard' element={<RequireAuth loginPath={'/login'}>
                 <Dashboard/>
               </RequireAuth>}/>
+
+              <Route path='/dashprofile' element={<RequireAuth loginPath={'/login'}>
+                <Dashprofile/>
+              </RequireAuth>}/>
+
 
               <Route path='/proyectos' element={<RequireAuth loginPath={'/login'}>
               <Proyectos/>

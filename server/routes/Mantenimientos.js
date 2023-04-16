@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require("../DbConnect");
-const verifyJWT = require('../middleware/verifyJWT');
+//const verifyJWT = require('../middleware/verifyJWT');
 const moment = require('moment');
 
 router.get("/", (req, res) => {
@@ -12,7 +12,7 @@ router.get("/", (req, res) => {
     const getsql = `SELECT m.*, p.nombre as proyecto,pv.nombre as proveedor,(SELECT s.nombre FROM servicios s INNER JOIN proveedores pv ON pv.s_id=s.s_id\
         WHERE pv.pv_id=m.pv_id) as servicio\
         FROM mantenimientos m  INNER JOIN proyectos p ON p.p_id = m.p_id INNER JOIN proveedores pv ON pv.pv_id = m.pv_id\
-        WHERE m.fecha >='${currentyear}-01-01' AND m.fecha <='${currentyear}-12-31' AND m.estado <> 'Ejecutado' AND p.status = 'Activo' ORDER BY m.fecha`;
+        WHERE m.fecha >='${currentyear}-01-01' AND m.fecha <='${currentyear}-12-31' AND m.estado <> 'Ejecutado' AND p.estado = 'Activo' ORDER BY m.fecha`;
     db.query(getsql, async (err, result) => {
         //  console.log(result);
         res.json(result);
@@ -54,7 +54,7 @@ router.get("/byDate", (req, res) => {
     const getsql = (`SELECT m.*, p.nombre as proyecto,pv.nombre as proveedor,(SELECT s.nombre FROM servicios s INNER JOIN proveedores pv ON pv.s_id=s.s_id\
     WHERE pv.pv_id=m.pv_id) as servicio\
     FROM mantenimientos m  INNER JOIN proyectos p ON p.p_id = m.p_id INNER JOIN proveedores pv ON pv.pv_id = m.pv_id\
-    WHERE m.estado <> 'Ejecutado' AND m.fecha >= "${datestart}" AND m.fecha <= "${dateend}" AND p.status ='Activo' ORDER BY m.fecha`);
+    WHERE m.estado <> 'Ejecutado' AND m.fecha >= "${datestart}" AND m.fecha <= "${dateend}" AND p.estado ='Activo' ORDER BY m.fecha`);
     db.query(getsql, async(err, result) => {
         res.json(result);
         // console.log(result);
@@ -73,7 +73,7 @@ router.get("/byDatebyPid", (req, res) => {
     const getsql = (`SELECT m.*, p.nombre as proyecto,pv.nombre as proveedor,(SELECT s.nombre FROM servicios s INNER JOIN proveedores pv ON pv.s_id=s.s_id\
     WHERE pv.pv_id=m.pv_id) as servicio\
     FROM mantenimientos m  INNER JOIN proyectos p ON p.p_id = m.p_id INNER JOIN proveedores pv ON pv.pv_id = m.pv_id\
-    WHERE m.estado <> 'Ejecutado' AND m.fecha >= "${datestart}" AND m.fecha <= "${dateend}" AND p.status ='Activo' AND m.p_id="${id}" ORDER BY m.fecha`);
+    WHERE m.estado <> 'Ejecutado' AND m.fecha >= "${datestart}" AND m.fecha <= "${dateend}" AND p.estado ='Activo' AND m.p_id="${id}" ORDER BY m.fecha`);
     db.query(getsql, async(err, result) => {
         res.json(result);
         // console.log(result);
@@ -83,10 +83,10 @@ router.get("/byDatebyPid", (req, res) => {
 router.get("/dashboard", (req, res) => {
     //const currentdate = new Date().toString();
     let today = new Date().toISOString().slice(0, 10)
-    const getsql = (`SELECT m.*, p.nombre as proyecto,pv.nombre as proveedor,(SELECT s.nombre FROM servicios s INNER JOIN proveedores pv ON pv.s_id=s.s_id
-        WHERE pv.pv_id=m.pv_id) as servicio
-        FROM mantenimientos m INNER JOIN proyectos p ON p.p_id = m.p_id INNER JOIN proveedores pv ON pv.pv_id = m.pv_id
-        WHERE m.fecha >= "${today}" AND p.status='Activo'
+    const getsql = (`SELECT m.*, p.nombre as proyecto,pv.nombre as proveedor,(SELECT s.nombre FROM servicios s INNER JOIN proveedores pv ON pv.s_id=s.s_id\
+        WHERE pv.pv_id=m.pv_id) as servicio\
+        FROM mantenimientos m INNER JOIN proyectos p ON p.p_id = m.p_id INNER JOIN proveedores pv ON pv.pv_id = m.pv_id\
+        WHERE m.fecha >= "${today}" AND p.estado='Activo' AND m.estado <> 'Ejecutado'\
         ORDER BY m.fecha,m.hora ASC LIMIT 15`);
     db.query(getsql, async(err, result) => {
         res.json(result);
@@ -103,7 +103,7 @@ router.get("/dashboard/totalmantenimientos", (req, res) => {
     let lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     //console.log(firstDay, lastDay);
     const getsql = (`SELECT count(m.m_id) AS TotalMantenimientos FROM mantenimientos m INNER JOIN proyectos p\
-     ON m.p_id = p.p_id WHERE fecha >='${moment(firstDay).format('YYYY-MM-DD')}' AND fecha<='${moment(lastDay).format('YYYY-MM-DD')}' AND p.status='Activo'`);
+     ON m.p_id = p.p_id WHERE fecha >='${moment(firstDay).format('YYYY-MM-DD')}' AND fecha<='${moment(lastDay).format('YYYY-MM-DD')}' AND p.estado='Activo'`);
     db.query(getsql, async(err, result) => {
         res.json(result);
         //console.log(result);
@@ -424,9 +424,9 @@ router.get("/calendar", (req, res) => {
     FROM mantenimientos man\
     INNER JOIN proyectos p ON p.p_id = man.p_id\
     INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
-    WHERE man.fecha >= '${currentyear}-01-01' AND man.fecha <= '${currentyear}-12-31' AND man.estado <> 'Ejecutado' AND p.status='Activo'\
+    WHERE man.fecha >= '${currentyear}-01-01' AND man.fecha <= '${currentyear}-12-31' AND man.estado <> 'Ejecutado' AND p.estado='Activo'\
     GROUP BY man.hora,proveedor,servicio\
-    ORDER BY man.fecha,proyecto,proveedor`;
+    ORDER BY man.fecha ASC,proyecto,proveedor`;
     db.query(getsql, async (err, result) => {
        if(err){
         console.log(err);
@@ -437,39 +437,7 @@ router.get("/calendar", (req, res) => {
 
 router.get("/calendar/byYear/:yearid", (req, res) => {
     const yearid = req.params.yearid;
-
-    const getsql = `SELECT man.m_id,p.nombre as proyecto,prov.nombre as proveedor, (SELECT s.nombre FROM servicios s INNER JOIN proveedores pv ON pv.s_id=s.s_id\
-        WHERE pv.pv_id=man.pv_id) as servicio,\
-    max(case month(man.fecha) when '1' THEN man.fecha ELSE '' end) enero,\
-    max(case month(man.fecha) when '2' THEN man.fecha ELSE '' end) febrero,\
-    max(case month(man.fecha) when '3' THEN man.fecha ELSE '' end) marzo,\
-    max(case month(man.fecha) when '4' THEN man.fecha ELSE '' end) abril,\
-    max(case month(man.fecha) when '5' THEN man.fecha ELSE '' end) mayo,\
-    max(case month(man.fecha) when '6' THEN man.fecha ELSE '' end) junio,\
-    max(case month(man.fecha) when '7' THEN man.fecha ELSE '' end) julio,\
-    max(case month(man.fecha) when '8' THEN man.fecha ELSE '' end) agosto,\
-    max(case month(man.fecha) when '9' THEN man.fecha ELSE '' end) septiembre,\
-    max(case month(man.fecha) when '10' THEN man.fecha ELSE '' end) octubre,\
-    max(case month(man.fecha) when '11' THEN man.fecha ELSE '' end) noviembre,\
-    max(case month(man.fecha) when '12' THEN man.fecha ELSE '' end) diciembre,\
-    man.hora\
-    FROM mantenimientos man\
-    INNER JOIN proyectos p ON p.p_id = man.p_id\
-    INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
-    WHERE man.fecha >= '${yearid}-01-01' AND man.fecha <= '${yearid}-12-31' AND man.estado <> 'Ejecutado' AND p.status='Activo'\
-    GROUP BY man.hora,proveedor,servicio\
-    ORDER BY man.fecha,proyecto,proveedor`;
-    db.query(getsql, async (err, result) => {
-       if(err){
-        console.log(err);
-       }
-       res.json(result);
-     })
-});
-
-router.get("/calendar/byP_Id/:id", (req, res) => {
-    const id = req.params.id;
-    const yearid = new Date().getFullYear();
+    //console.log(yearid)
     const getsql = `SELECT man.m_id,p.nombre as proyecto,prov.nombre as proveedor, (SELECT s.nombre FROM servicios s INNER JOIN proveedores pv ON pv.s_id=s.s_id\
         WHERE pv.pv_id=man.pv_id) as servicio,\
     max(case month(man.fecha) when '1' THEN man.fecha ELSE '' end) enero,\
@@ -488,7 +456,39 @@ router.get("/calendar/byP_Id/:id", (req, res) => {
     FROM mantenimientos man\
     INNER JOIN proyectos p ON p.p_id = man.p_id\
     INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
-    WHERE man.fecha >= '${yearid}-01-01' AND man.fecha <= '${yearid}-12-31' AND man.estado <> 'Ejecutado' AND p.status='Activo' AND p.p_id=${id}\
+    WHERE man.fecha >= '${yearid}-01-01' AND man.fecha <= '${yearid}-12-31' AND man.estado <> 'Ejecutado' AND p.estado='Activo'\
+    GROUP BY man.hora,proveedor,servicio\
+    ORDER BY man.fecha ASC,proyecto,proveedor`;
+    db.query(getsql, async (err, result) => {
+       if(err){
+        console.log(err);
+       }
+       res.json(result);
+     })
+});
+
+router.get("/calendar/byP_Id/:id", (req, res) => {
+    const id = req.params.id;
+    const currentyear = new Date().getFullYear();
+    const getsql = `SELECT man.m_id,p.nombre as proyecto,prov.nombre as proveedor, (SELECT s.nombre FROM servicios s INNER JOIN proveedores pv ON pv.s_id=s.s_id\
+        WHERE pv.pv_id=man.pv_id) as servicio,\
+    max(case month(man.fecha) when '1' THEN man.fecha ELSE '' end) enero,\
+    max(case month(man.fecha) when '2' THEN man.fecha ELSE '' end) febrero,\
+    max(case month(man.fecha) when '3' THEN man.fecha ELSE '' end) marzo,\
+    max(case month(man.fecha) when '4' THEN man.fecha ELSE '' end) abril,\
+    max(case month(man.fecha) when '5' THEN man.fecha ELSE '' end) mayo,\
+    max(case month(man.fecha) when '6' THEN man.fecha ELSE '' end) junio,\
+    max(case month(man.fecha) when '7' THEN man.fecha ELSE '' end) julio,\
+    max(case month(man.fecha) when '8' THEN man.fecha ELSE '' end) agosto,\
+    max(case month(man.fecha) when '9' THEN man.fecha ELSE '' end) septiembre,\
+    max(case month(man.fecha) when '10' THEN man.fecha ELSE '' end) octubre,\
+    max(case month(man.fecha) when '11' THEN man.fecha ELSE '' end) noviembre,\
+    max(case month(man.fecha) when '12' THEN man.fecha ELSE '' end) diciembre,\
+    man.hora
+    FROM mantenimientos man\
+    INNER JOIN proyectos p ON p.p_id = man.p_id\
+    INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
+    WHERE man.fecha >= '${currentyear}-01-01' AND man.fecha <= '${currentyear}-12-31' AND man.estado <> 'Ejecutado' AND p.estado='Activo' AND p.p_id=${id}\
     GROUP BY man.hora,proveedor,servicio\
     ORDER BY man.fecha,proyecto,proveedor`;
     db.query(getsql, async (err, result) => {
@@ -525,9 +525,9 @@ router.get("/calendar/byYearbyPid", (req, res) => {
     FROM mantenimientos man\
     INNER JOIN proyectos p ON p.p_id = man.p_id\
     INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
-    WHERE man.fecha >= '${yearid}-01-01' AND man.fecha <= '${yearid}-12-31' AND man.estado <> 'Ejecutado' AND p.status='Activo' AND p.p_id=${p_id}\
+    WHERE man.fecha >= '${yearid}-01-01' AND man.fecha <= '${yearid}-12-31' AND man.estado <> 'Ejecutado' AND p.estado='Activo' AND p.p_id=${p_id}\
     GROUP BY man.hora,proveedor,servicio\
-    ORDER BY man.fecha,proyecto,proveedor`);
+    ORDER BY man.fecha ASC,proyecto,proveedor`);
     db.query(getsql, async(err, result) => {
         res.json(result);
         // console.log(result);

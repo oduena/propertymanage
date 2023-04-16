@@ -2,8 +2,6 @@
 //import { useNavigate } from 'react-router-dom';
 const ListarMantenimientos = ({mantenimientoscal}) => {
 
-//let navigate = useNavigate();
-
 return (
 <>
 
@@ -29,10 +27,6 @@ return (
     
         </>
       )
-
-
-
-
 }
 
 export default ListarMantenimientos

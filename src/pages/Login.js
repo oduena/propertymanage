@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 //import AuthContext from '../context/AuthProvider';
 import Logo from '../../src/images/Logo_Property.jpg';
 import { useSignIn } from 'react-auth-kit';
-import Axios from 'axios';
-//import Axios from '../api/axios'
+//import Axios from 'axios';
+import Axios from '../../src/api/axios';
 //const LOGIN_URL = '/usuarios/login';
 
 const Login = () => {
@@ -33,8 +33,8 @@ e.preventDefault();
 
 try {
 
-         const response =  await Axios.post('http://localhost:3005/api/usuarios/login',
-         
+         //const response =  await Axios.post('http://localhost:3005/api/usuarios/login',
+         const response =  await Axios.post('/usuarios/login',
          JSON.stringify({username, password}),
           {headers: {'Content-Type': 'application/json'},
          withCredentials:true
@@ -59,8 +59,12 @@ signIn({
     authState: {'user': currentUser,'role':userRole,'userID':userID}
 })
 
+if(userRole==='Admin'){
+    navigate("/dashboard");
+}else{
+    navigate("/dashprofile");
+}
 
-navigate("/dashboard");
 
 
 } catch (err) {
@@ -73,56 +77,15 @@ navigate("/dashboard");
         setErrMsg('Usuario no Existe');
     } else if (err.response?.status === 401) {
         setErrMsg('Username o password no coincide');
-    } else {
+    } else if (err.response?.status === 403) {
+        setErrMsg('Usuario NO esta habilitado para hacer Login');
+    }
+    
+    else {
         setErrMsg('Login Failed');
     }
     errRef.current.focus();
-
-
 }
-
-
-
-// const response =  axios.get('http://localhost:3005/api/usuarios/login',{
-//    // const response =  axios.post(LOGIN_URL,{
-//     params : {
-//         username: username,
-//         password: password
-//     }
-// }).then((res)=>{
-//console.log(res);
-// setAuth({currentUser:res.data.currentUser, role:res.data.role,userID:res.data.userID });
-// setUsername('');
-// setPassword('');
-// setSuccess(true);
-
-// navigate("/dashboard");
-//}).catch((err)=>{
-    //console.log(err);
-    // if (!err?.response) {
-    //     setErrMsg('No Server Response');
-    // } else if (err.response?.status === 400) {
-    //     setErrMsg('Usuario no Existe');
-    // } else if (err.response?.status === 401) {
-    //     setErrMsg('Username o password no coincide');
-    // } else {
-    //     setErrMsg('Login Failed');
-    // }
-    // errRef.current.focus();
-//})
-
-//console.log(...response.data);
-//   setAuth({
-//   success:true,
-// //   currentUser:response.data.username,
-// //   userID : response.data.id,
-// //   Role:response.data.role
-//    currentUser:'Omar Duenas',
-//    userID : '1',
-//    Role:'Usuario'
-//   });
- // console.log(loggedUser);
-//navigate("/dashboard");
 }
 
 return (
@@ -174,8 +137,6 @@ return (
     </div>
         </div>
     </div>
-
-
     </div>
 </div>
 </>

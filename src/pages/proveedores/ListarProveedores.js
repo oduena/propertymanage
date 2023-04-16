@@ -6,12 +6,18 @@ const ListarProveedores = ({proveedores, handleEditProveedorForm, handleDelete})
       {proveedores.map((proveedor)=>(
           <tr key={proveedor.pv_id}>
               <td>{proveedor.nombre}</td>
+              <td>{proveedor.direccion}</td>
               <td>{proveedor.nit}</td>
               <td>{proveedor.cuenta}</td>
               <td>{proveedor.servicio}</td>
               <td>{proveedor.contacto}</td>
               <td>{proveedor.telefono}</td>
               <td>{proveedor.email}</td>
+        
+
+              <td><span className={proveedor.estado==='Activo' ? "label label-success" : "label label-warning"}>{proveedor.estado}</span></td>
+
+
               <td style={{textAlign:"center"}}>
           <div className="row">
             <div className="col-lg-6">

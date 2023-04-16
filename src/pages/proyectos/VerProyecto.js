@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom';
-import Axios from 'axios';
+import Axios from '../../api/axios';
 import moment from 'moment';
 import ListarProveedoresProyecto from './ListarProveedoresProyecto';
+import ListarTareasProyecto from './ListarTareasProyecto';
+import Swal from 'sweetalert2';
 
 const VerProyecto = () => {
 
   const [Proyecto, setProyecto] = useState([]);
   const [Proveedores, setProveedores] = useState([]);
   const [ListProveedores, setListProveedores] = useState([]);
+  const [TareasProyecto, setTareasProyecto] = useState([]);
   const [Servicio, setServicio] = useState([]);
   const [selectedProveedor, setSelectedProveedor] = useState([]);
   const [btnAddProveedorVisible, setbtnAddProveedorVisible] = useState(false);
@@ -16,7 +19,7 @@ const VerProyecto = () => {
   let { id } = useParams();
 
   const loadProyecto = async () => {
-    const response = await Axios.get(`http://localhost:3005/api/proyectos/byId/${id}`);
+    const response = await Axios.get(`/proyectos/byId/${id}`);
      setProyecto(...response.data);
      
   };
@@ -42,7 +45,7 @@ const VerProyecto = () => {
     //setSelectedProveedor(e.target.value);
     //if(input==="pv_id"){
       let pv_id = e.target.value;
-      const response = await Axios.get(`http://localhost:3005/api/proveedores/getServiciobypv_id/${pv_id}`)
+      const response = await Axios.get(`/proveedores/getServiciobypv_id/${pv_id}`)
       setServicio(...response.data);
       setSelectedProveedor(e.target.value);
       //console.log(Servicio.servicio);
@@ -62,28 +65,51 @@ const VerProyecto = () => {
   const handleEditFormClick = (input) => (e) => {
     e.preventDefault();
     setEditFormData({...editFormData, [input]: e.target.value });
+    console.log(input);
   }
 
   const handleFormSave = (e) => {
     e.preventDefault();
-      const editProyectoProveedor = {
-      pp_id: editFormData.pp_id
-  }
-  
-  Axios.put(`http://localhost:3005/api/proyectos/editarProyectoProveedor/${editProyectoProveedor.pp_id}`,{
-    pp_id:editFormData.pp_id,
-    pv_id:editFormData.pv_id,
-    periodicidad:editFormData.periodicidad,
-    fechainicio:editFormData.fechainicio,
-    fechavence:editFormData.fechavence
-  }).then((response)=>{
-  
-    //loadProveedores();
-    loadProveedores();
-  
+
+try {
+  const editProyectoProveedor = {
+    pp_id: editFormData.pp_id
+}
+Axios.put(`/proyectos/editarProyectoProveedor/${editProyectoProveedor.pp_id}`,{
+  pp_id:editFormData.pp_id,
+  pv_id:editFormData.pv_id,
+  periodicidad:editFormData.periodicidad,
+  fechainicio:editFormData.fechainicio,
+  fechavence:editFormData.fechavence
+}).then((response)=>{
+if(response?.status === 200){
+  Swal.fire({
+    icon:'success',
+    title: 'Rregistro ha sido Modificado',
+    timer : 2000,
+    showConfirmButton: false,
+    timerProgressBar:true,
+    position: 'top',
+    heightAuto: false,
+    toast: true
   })
-  
-  }
+loadProveedores();
+}
+})
+
+} catch (error) {
+  Swal.fire({
+    icon:'error',
+    title: 'Registro NO fue Modificado',
+    timer : 2000,
+    showConfirmButton: false,
+    timerProgressBar:true,
+    position: 'top',
+    toast: true,
+    text: 'Error : ' + error
+  })
+}
+}
 
   const handleAddProveedorProyecto = (e) => {
     e.preventDefault();
@@ -95,7 +121,7 @@ const VerProyecto = () => {
       periodicidad : addProveedorProyecto.periodicidad
     }
 
-    Axios.post('http://localhost:3005/api/proveedores/AddProveedorProyecto',{
+    Axios.post('/proveedores/AddProveedorProyecto',{
         p_id : newProveedorProyecto.p_id,
         pv_id: newProveedorProyecto.pv_id,
         fechainicio: newProveedorProyecto.fechainicio,
@@ -129,21 +155,55 @@ setAddProveedorProyecto();
     //console.log(Servicio.servicio);
 }
 
-// const isbtnVisible = () => {
-//   setbtnAddProveedorVisible(!btnAddProveedorVisible);
-// }
+const handleDeleteProveedorProyecto = (e, item) => {
+  e.preventDefault();
 
+try {
+Swal.fire({
+  icon:'warning',
+  title: 'Esta seguro de querer Eliminar este Registro?',
+  showConfirmButton: true,
+  confirmButtonText: 'Si',
+  showDenyButton : true,
+  position: 'top',
+}).then((response)=>{
+if(response.isConfirmed){
+  Axios.delete(`/proyectos/borrarProveedorProyecto/${item.pp_id}`,{
 
+  }).then(()=>{
+    loadProveedores();
+
+  })
+}
+})
+  
+} catch (error) {
+  Swal.fire({
+    icon:'error',
+    title: 'Registro NO fue Inactivado',
+    showConfirmButton: true,
+    position: 'top',
+    toast: true,
+    text: 'Error : ' + error
+  })
+}
+}
   const loadProveedores = async () => {
-    const response = await Axios.get(`http://localhost:3005/api/proyectos/assignedProveedores/${id}`);
+    const response = await Axios.get(`/proyectos/assignedProveedores/${id}`);
      setProveedores(response.data);
      loadListProveedores();
      setbtnAddProveedorVisible(true);
      // console.log(response.data);
   };
 
+  const loadTareasbyProyecto = async() => {
+    const response = await Axios.get(`/proyectos/tareasbyproyecto/${id}`);
+    setTareasProyecto(response.data);
+    //console.log(response.data);
+  }
+
   const loadListProveedores = async () => {
-    const response = await Axios.get('http://localhost:3005/api/proveedores/list');
+    const response = await Axios.get('/proveedores/list');
     setListProveedores(response.data);
   };
 
@@ -171,7 +231,7 @@ setAddProveedorProyecto();
   <div className="nav nav-tabs" id="nav-tab" role="tablist">
     <button className="nav-link active" id="nav-info-tab" data-bs-toggle="tab" data-bs-target="#nav-info" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Informacion General</button>
     <button className="nav-link" id="nav-profile-tab" onClick={loadProveedores} data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Proveedores</button>
-    <button className="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Tareas</button>
+    <button className="nav-link" id="nav-contact-tab" onClick={loadTareasbyProyecto} data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Tareas</button>
     <button className="nav-link" id="nav-disabled-tab" data-bs-toggle="tab" data-bs-target="#nav-propietarios" type="button" role="tab" aria-controls="nav-propietarios" aria-selected="false">Propietarios</button>
   </div>
 </nav>
@@ -191,8 +251,9 @@ setAddProveedorProyecto();
           <div className="h5 font-weight-bold text-gray-800 mb-4"><b>Clave Email:</b> {Proyecto.claveemail}</div>
           <div className="h5 font-weight-bold text-gray-800 mb-4"><b>Cuentas Bancos:</b> {Proyecto.cuentasbancos}</div>
           <div className="h5 font-weight-bold text-gray-800 mb-4"><b>Fecha Inicio:</b> {moment(Proyecto.fechainicio).format('YYYY-MM-DD')}</div>
-          <div className="h5 font-weight-bold text-gray-800 mb-4"><b>Fecha Vencimiento:</b> <span className={Proyecto.daysleft >= 30 ? "label label-success" : Proyecto.daysleft < 29 && Proyecto.daysleft > 14 ? "label label-warning" :           
+          <div className="h5 font-weight-bold text-gray-800 mb-4"><b>Fecha Vencimiento:</b> <span className={Proyecto.daysleft >= 30 ? "label label-success" : Proyecto.daysleft < 29 && Proyecto.daysleft > 14 ? "label label-warning" :
         "label label-danger"}>{moment(Proyecto.fechavence).format('YYYY-MM-DD')}</span></div>
+          <div className="h5 font-weight-bold text-gray-800 mb-4"><b>Estado:</b><span className={Proyecto.estado==='Activo' ? "label label-success" : "label label-warning"}>{Proyecto.estado}</span></div>
         </div>
         </div>
         </div>
@@ -235,7 +296,8 @@ setAddProveedorProyecto();
           <tbody>
             {<ListarProveedoresProyecto
             proveedoresproyecto={Proveedores}
-            handleEditProyectoProveedorForm={handleEditProyectoProveedorForm}        
+            handleEditProyectoProveedorForm={handleEditProyectoProveedorForm}
+            handleDeleteProveedorProyecto={handleDeleteProveedorProyecto}
             />}
           </tbody>
         </table>
@@ -243,6 +305,28 @@ setAddProveedorProyecto();
    </div>       
   </div>
   <div className="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabIndex="0">
+    {/* Display Tareas by Proyecto */}
+    <div className="card shadow">
+          <div className="card-body">
+          <table className="table table-hover">
+          <thead className="thead-light">
+            <th style={{width:"380px"}}>Tarea</th>
+            <th style={{width:"180px"}}>Asignada Por</th>
+            <th style={{width:"180px"}}>Asignada A</th>
+            <th style={{width:"120px"}}>Fecha/Hora Asignacion</th>
+            <th style={{width:"100px"}}>Estado</th>
+            {/* <th style={{width:"60px"}}>Accion</th> */}
+          </thead>
+          <tbody>
+            {<ListarTareasProyecto
+            tareasproyecto={TareasProyecto}
+            //handleEditProyectoProveedorForm={handleEditProyectoProveedorForm}        
+            />}
+          </tbody>
+        </table>
+          </div>
+   </div> 
+    {/* Display Tareas by Proyecto */}
   </div>
   <div className="tab-pane fade" id="nav-propietarios" role="tabpanel" aria-labelledby="nav-disabled-tab" tabIndex="0">
     propietarios
@@ -267,6 +351,7 @@ setAddProveedorProyecto();
             name="pv_id"
             onChange={(e)=>getServicio(e)}
             >
+          <option value="">Seleccione el Proveedor</option>
       {ListProveedores.map((item,index) => {
         return (
           <option value={item.pv_id} key={item.pv_id}>{item.nombre}</option>
@@ -307,7 +392,8 @@ setAddProveedorProyecto();
                 <label htmlFor="" className="form-label">Periodicidad: </label>
                 <select className="form-select dropdown" name="periodicidad"
                 onChange={handleChange("periodicidad")}
-                >                  
+                >   
+                    <option value="">Seleccione la Periodicidad</option>
                     <option value="12">Mensual</option>
                     <option value="6">Bimestral</option>
                     <option value="3">Cada 4 meses</option>

@@ -61,16 +61,18 @@ bcrypt.hash(password, 10).then((hash)=>{
 
 router.put("/editarusuario/:id", (req, res) => {
     const id = req.params.id;
-    const {nombre, email, role, password} = req.body;
-    
-    bcrypt.hash(password,10).then((hash)=>{
-    const editUserSql = (`UPDATE users SET nombre=?,email=?,role=?,password=? WHERE id='${id}'`);
-       db.query(editUserSql, [nombre,email,role,hash], (err, result) => {
+    const {nombre, email, role, estado} = req.body;
+    console.log(req.body)
+    //bcrypt.hash(password,10).then((hash)=>{
+    const editUserSql = (`UPDATE users SET nombre=?,email=?,role=?,estado=? WHERE id='${id}'`);
+    //const editUserSql = (`UPDATE users SET nombre=?,email=?,role=?,estado=? WHERE id='${id}'`);
+       db.query(editUserSql, [nombre,email,role,estado], (err, result) => {
        if (err) {
            console.log(err);
        }
+       console.log(result);
        res.json(result);
-   });
+   //});
   });
 });
 
@@ -81,15 +83,17 @@ if(!username || !password)
 { return res.status(400).json({error:"Usuario o password no pueden estar en blanco"})}
   
     
-    const getsql = `SELECT u.id as userID, nombre, password, role  FROM users u WHERE email='${username}'`;
+    const getsql = `SELECT u.id as userID, nombre, password, estado, role  FROM users u WHERE email='${username}'`;
     db.query(getsql, async (err, result)=>{
         if(err){
             console.log(err);
         }
-
+       
         if (result.length===0){
             res.status(404).json({error: "Usuario no existe"});
         } else {
+            
+        if(result[0].estado === 'Activo'){
            
            const dbPassword = result[0].password;
 
@@ -104,7 +108,7 @@ if(!username || !password)
             )
 
             const refreshToken = jwt.sign(
-                {"username":result[0].name,"userID":result[0].userID,"role":result[0].role},
+                {"username":result[0].nombre,"userID":result[0].userID,"role":result[0].role},
                 '059aec9e4a901358e5075ee458d373d5e5ca743a90d78bf677e334f717a9553b',
                 { expiresIn: '1d' }
             )
@@ -114,16 +118,21 @@ if(!username || !password)
 
            } else {
             res.status(401).json({ error: "Usuario o password estan errados"});
-           }           
+           }
+        }else{
+            res.status(403).json({error:"Usuario NO esta habilitado para hacer Login"});
+        }    
     }
  })
 });
 
 
 router.put("/resetpwd", async (req,res)=>{
+
 const {username, password} = req.body
-if(!username)
-{ return res.status(400).json({error:"Usuario no puede estar en blanco"})}
+
+if(!username || !password)
+{ return res.status(400).json({error:"Usuario o password no pueden estar en blanco"})}
 
 const getsql = `SELECT u.id as userID, nombre FROM users u WHERE email='${username}'`;
 

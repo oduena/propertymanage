@@ -2,7 +2,7 @@ import moment from "moment";
 
 const ListarProyectos = ({proyectos}) => {
 
-    return (
+return (
         <>
   
     {proyectos.map((proyecto)=>(

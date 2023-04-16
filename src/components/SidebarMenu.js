@@ -6,12 +6,20 @@ const SidebarMenu = () => {
 const [active, setActive] = useState(null);
 const auth = useAuthUser();
 
+let redirectURL = "";
+if(auth()?.role==='Admin'){
+  redirectURL = "dashboard";
+}else{
+redirectURL = "dashprofile";
+}
+
 const [menuMainList] = useState([
+
     {
       id: 1,
       menuTitle: "Dashboard",
       imgclass: "fas fa-fw fa-tachometer-alt",
-      linkTo: "/dashboard"
+      linkTo: "/"+redirectURL,
     },
     {
       id: 2,

@@ -3,27 +3,23 @@ import React, { useState, useEffect } from 'react';
 import Axios from '../../api/axios';
 //import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import ListarNextMant from './ListarNextMant';
-import ListarProyectos from './ListarProyectos';
-import ListarProveedores from './ListarProveedores';
+import {useAuthUser} from 'react-auth-kit'
+import ListarTareasperUser from './ListarTareasperUser';
+//import ListarProveedores from './ListarProveedores';
 //import useRefreshToken from '../../hooks/useRefreshToken';
 //import AuthContext from '../../context/AuthProvider';
 //import { useNavigate } from 'react-router-dom';
 
-const  Dashboard = () => {
+const  Dashprofile = () => {
+
+  const auth = useAuthUser();
 
     const [nextMants, setNextMants] = useState([]);
-    const [Proyectos, setProyectos] = useState([]);
-    const [Proveedores, setProveedores] = useState([]);
+    const [Tareas, setTareas] = useState([]);
+  //  const [Proveedores, setProveedores] = useState([]);
     const [totalProyectos, setTotalProyectos] = useState([]);
     const [totalMantenimientos, setTotalMantenimientos] = useState([]);
-    //const [totalTareas, setTotalTareas] = useState([]);
     const [totalTareasCompleted, setTotalTareasCompleted] = useState([]); 
-    //const { auth } = useContext(AuthContext);
-    //let navigate = useNavigate();
-    //Temp function
-    //const refresh = useRefreshToken();
-
-//const axiosInstace = Axios.create({baseURL:process.env.REACT_APP_API_URL});
 
 //const fetchUrl = "http://localhost:3005/api/mantenimientos/dashboard";
 const fetchUrl = process.env.REACT_APP_API_URL+"/mantenimientos/dashboard";
@@ -36,24 +32,24 @@ useEffect(() => {
           return data
       }
       fetchData();
-      loadProyectos();
-      loadProveedores();
+      loadTareasperUser();
+     // loadProveedores();
       loadTotalProyectos();
       loadTotalMantenimientosThisMonth();
       loadTotalTareas();
 },[fetchUrl]);
 
-const loadProyectos = async () => {
-        //const response = await Axios.get('http://localhost:3005/api/proyectos/dashboard');
-        const response = await Axios.get('/proyectos/dashboard');
-        setProyectos(response.data);
+const loadTareasperUser = async () => {
+       
+        const response = await Axios.get(`/tareas/byUser_AsignedTo/${auth().userID}`);
+        setTareas(response.data);
 };
 
-const loadProveedores = async () => {
-    //const response = await Axios.get('http://localhost:3005/api/proveedores/dashboard');
-    const response = await Axios.get('/proveedores/dashboard');
-    setProveedores(response.data);
-};
+// const loadProveedores = async () => {
+    
+//     const response = await Axios.get('/proveedores/dashboard');
+//     setProveedores(response.data);
+// };
 
 const loadTotalProyectos = async () => {
     //const response  = await Axios.get('http://localhost:3005/api/proyectos/dashboard/totalproyectos');
@@ -128,56 +124,6 @@ return (
    </div>
 </div>
 
-    
-            
-            {/* <div className="insights">
-                <div className="sales">
-                    <span className="material-icons-sharp">analytics</span>
-                    <div className="middle">
-                        <div className="left">
-                            <h3>Total Sales</h3>
-                            <h1>$25,034</h1>
-                        </div>
-                    </div>
-                </div>
-                <div className="expenses">
-                    <span className="material-icons-sharp">bar_chart</span>
-                    <div className="middle">
-                        <div className="left">
-                            <h3>Total Expenses</h3>
-                            <h1>$15,034</h1>
-                        </div>
-                        <div className="progress">
-                            <svg>
-                                <circle cx="38" cy="38" r="36"></circle>
-                            </svg>
-                            <div className="number">
-                                <p>51%</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div> 
-                <div className="income">
-                    <span className="material-icons-sharp">stacked_line_chart</span>
-                    <div className="middle">
-                        <div className="left">
-                            <h3>Total Income</h3>
-                            <h1>$10,145</h1>
-                        </div>
-                        <div className="progress">
-                            <svg>
-                                <circle cx="38" cy="38" r="36"></circle>
-                            </svg>
-                            <div className="number">
-                                <p>34%</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div> 
-            </div> */}
-
 <div className="accordion" id="accordionExample">
   <div className="accordion-item">
     <h1 className="accordion-header" id="headingOne">
@@ -193,12 +139,12 @@ return (
                 <table className='table table-hover'>
                     <thead>
                         <tr>
-                            <th style={{width:"280px"}}>Proyecto</th>
+                        <th style={{width:"280px"}}>Proyecto</th>
                             <th style={{width:"280px"}}>Proveedor</th>
                             <th style={{width:"280px"}}>Servicio</th>
                             <th style={{width:"120px"}}>Fecha</th>
                             <th style={{width:"60px"}}>Hora</th>
-                            <th style={{width:"100px"}}>Estado</th>                            
+                            <th style={{width:"100px"}}>Estado</th>                           
                         </tr>
                     </thead>
                      <tbody>                                            
@@ -214,58 +160,30 @@ return (
   <div className="accordion-item">
     <h2 className="accordion-header" id="headingTwo">
       <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-        Proyectos (Proximos Vencimientos de Contrato)
+        Tareas Asignadas
       </button>
     </h2>
     <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
       <div className="accordion-body">
       <div className="recent-orders mt-0 mb-0">
                 {/* <h2>Proximos Mantenimientos</h2> */}
+                <div className="tableContainer">
                 <table className='table table-hover'>
                     <thead>
                         <tr>
-                            <th style={{width:"480px"}}>Proyecto</th>
-                            <th style={{width:"280px"}}>Fecha Inicio</th>
-                            <th style={{width:"280px"}}>Fecha Vencimiento</th>
-                    
+                        <th style={{width:"780px"}}>Tarea</th>
+                            <th style={{width:"200px"}}>Asignada Por</th>
+                            <th style={{width:"200px"}}>Asignada A</th>
+                            <th style={{width:"280px"}}>Fecha/Hora Asignacion</th>
                         </tr>
                     </thead>
                      <tbody>                                            
-                    {<ListarProyectos
-                    proyectos={Proyectos}
+                    {<ListarTareasperUser
+                    tareas={Tareas}
                     />}
                     </tbody>
                 </table>
-            </div>
-      </div>
-    </div>
-  </div>
-  <div className="accordion-item">
-    <h2 className="accordion-header" id="headingThree">
-      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-        Proveedores (Proximos Vencimientos de Contrato)
-      </button>
-    </h2>
-    <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-      <div className="accordion-body">
-      <div className="recent-orders mt-0 mb-0">
-                {/* <h2>Proximos Mantenimientos</h2> */}
-                <table className='table table-hover'>
-                    <thead>
-                        <tr>
-                            <th>Proveedor</th>
-                            <th>Servicio</th>
-                            <th>Proyecto</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Vencimiento</th>
-                        </tr>
-                    </thead>
-                     <tbody>                                            
-                    {<ListarProveedores
-                    proveedores={Proveedores}
-                    />}
-                    </tbody>
-                </table>
+                </div>
             </div>
       </div>
     </div>
@@ -275,24 +193,7 @@ return (
   </div>
   <div className='col-lg-3'>
      <div className="right">
-            {/* <div className="top">
-                <button id="menu-btn">
-                    <span className="material-icons-sharp">menu</span>
-                </button>
-                <div className="theme-toggler">
-                    <span className="material-icons-sharp active">light_mode</span>
-                    <span className="material-icons-sharp">dark_mode</span>
-                </div>
-                <div className="profile">
-                    <div className="info">
-                        <p>Hey, <b>Omar</b></p>
-                        <small className="text-muted">Admin</small>
-                    </div>
-                    <div className="profile-photo">
-                        <img src="./images/profile-1.jpg"></img>
-                    </div>
-                </div>
-            </div> */}
+
             <div className="recent-updates">
                 <h2>Notificaciones Recientes</h2>
                 <div className="updates">
@@ -383,4 +284,4 @@ return (
 )
 }
 
-export default Dashboard
+export default Dashprofile

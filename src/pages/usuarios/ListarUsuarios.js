@@ -14,7 +14,7 @@ const ListarUsuarios = ({usuarios,handleEditUsuarioForm}) => {
               <td>{usuario.nombre}</td>
               <td>{usuario.email}</td>
               <td>{usuario.role}</td>
-              <td>{usuario.estado}</td>
+              <td><span className={usuario.estado==='Activo' ? "label label-success" : "label label-warning"}>{usuario.estado}</span></td>
               <td style={{textAlign:"center"}}>
           <div className='row' style={{textAlign:"center"}}>
             <div className='col-lg-6'>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Axios from 'axios';
+import Axios from '../../api/axios';
 import ListarTareas from './ListarTareas';
 import ListarTareaNotas from './ListarTareaNotas';
 import moment from 'moment';
@@ -51,7 +51,7 @@ const [ViewFormData, setViewFormData] = useState({
     asignadapor: '',
     asignadaa: '',
     fechaasignada: '',
-    estado: ''
+    estado: 'Asignada'
 });
 
 const handleChange = (input) => (e) => {
@@ -105,7 +105,7 @@ const handleEditFormClick = (input) => (e) => {
       t_id: editFormData.t_id
   }
   
-  Axios.put(`http://localhost:3005/api/tareas/editarTarea/${editTarea.t_id}`,{
+  Axios.put(`/tareas/editarTarea/${editTarea.t_id}`,{
     t_id:editFormData.t_id,
     p_id:editFormData.p_id,
     descripcion:editFormData.descripcion,
@@ -137,7 +137,7 @@ const handleAddTarea = (e) => {
     }
 
    // const newServicios = [...Servicios, newServicio];
-    Axios.post('http://localhost:3005/api/AddTarea',{
+    Axios.post('/AddTarea',{
         p_id: newTarea.p_id,
         descripcion: newTarea.descripcion,
         asignadapor : newTarea.asignadapor,
@@ -161,7 +161,7 @@ const handleAddTareaNotas = (e) =>{
       username : auth().user
     }
 
-    Axios.post('http://localhost:3005/api/tareas/AddTareaNotas',{
+    Axios.post('/tareas/AddTareaNotas',{
       t_id : newTareaNota.t_id,
       tarea_nota : newTareaNota.tarea_nota,
       username : newTareaNota.username
@@ -176,18 +176,18 @@ const handleAddTareaNotas = (e) =>{
 const handleFilterClick = async () => {
     if(selectedProyecto==="All"){
     if(selectedUsuario==="All"){
-      const response = await Axios.get('http://localhost:3005/api/tareas');
+      const response = await Axios.get('/tareas');
       setTareas(response.data);
     }else{
-      const response = await Axios.get(`http://localhost:3005/api/tareas/byUser_AsignedTo/${selectedUsuario}`);
+      const response = await Axios.get(`/tareas/byUser_AsignedTo/${selectedUsuario}`);
     setTareas(response.data);
     }
     }else{
       if(selectedUsuario==="All"){
-        const response = await Axios.get(`http://localhost:3005/api/tareas/byP_Id/${selectedProyecto}`);
+        const response = await Axios.get(`/tareas/byP_Id/${selectedProyecto}`);
         setTareas(response.data)
       }else{
-        const response = await Axios.get('http://localhost:3005/api/tareas/ByP_idbyUser_Asigned',{
+        const response = await Axios.get('/tareas/ByP_idbyUser_Asigned',{
           params:{
               p_id:selectedProyecto,
               user_id:selectedUsuario
@@ -203,7 +203,7 @@ const handleDelete = (e, tarea) => {
     
     if(window.confirm('Esta seguro de querer Eliminar este Registro?')){
   
-     Axios.delete(`http://localhost:3005/api/tareas/borrarTarea/${tarea.t_id}`,{
+     Axios.delete(`/tareas/borrarTarea/${tarea.t_id}`,{
   
      }).then(()=>{
         loadFilteredTareas();
@@ -222,18 +222,18 @@ const handleDelete = (e, tarea) => {
     
     if(selectedProyecto==="All"){
         if(selectedUsuario==="All"){
-          const response = await Axios.get('http://localhost:3005/api/tareas');
+          const response = await Axios.get('/tareas');
           setTareas(response.data);
         }else{
-          const response = await Axios.get(`http://localhost:3005/api/tareas/byUser_AsignedTo/${selectedUsuario}`);
+          const response = await Axios.get(`/tareas/byUser_AsignedTo/${selectedUsuario}`);
         setTareas(response.data);
         }
         }else{
           if(selectedUsuario==="All"){
-            const response = await Axios.get(`http://localhost:3005/api/tareas/byP_Id/${selectedProyecto}`);
+            const response = await Axios.get(`/tareas/byP_Id/${selectedProyecto}`);
             setTareas(response.data)
           }else{
-            const response = await Axios.get('http://localhost:3005/api/tareas/ByP_idbyUser_Asigned',{
+            const response = await Axios.get('/tareas/ByP_idbyUser_Asigned',{
               params:{
                   p_id:selectedProyecto,
                   user_id:selectedUsuario
@@ -245,23 +245,23 @@ const handleDelete = (e, tarea) => {
 }
 
 const loadTareaSeguimientoNotas = async (t_id) =>{
-    const response = await Axios.get(`http://localhost:3005/api/tareas/getTareaNotasByt_id/${t_id}`);
+    const response = await Axios.get(`/tareas/getTareaNotasByt_id/${t_id}`);
     setSeguimientoNotas(response.data);
     //console.log(seguimientoNotas);
   }
 
 const loadListProyectos = async () => {
-    const response = await Axios.get('http://localhost:3005/api/proyectos/list');
+    const response = await Axios.get('/proyectos/list');
     setProyectosList(response.data);
 };
 
 
   const loadUsuariosList = async () => {
     if(auth().role==='Admin'){
-    const response = await Axios.get('http://localhost:3005/api/usuarios/list');
+    const response = await Axios.get('/usuarios/list');
     setUsuariosList(response.data);
     }else{
-      const response = await Axios.get(`http://localhost:3005/api/usuarios/listuser/${auth().userID}`);
+      const response = await Axios.get(`/usuarios/listuser/${auth().userID}`);
     setUsuariosList(response.data);
     }
 
@@ -269,7 +269,7 @@ const loadListProyectos = async () => {
 
   const loadUsuariosAll = async () => {
     
-    const response = await Axios.get('http://localhost:3005/api/usuarios/list');
+    const response = await Axios.get('/usuarios/list');
     setUsuariosAll(response.data);
 
   };
@@ -290,7 +290,7 @@ const loadListProyectos = async () => {
   useEffect(() => {
 
     if(auth().role==='Admin'){
-      const fetchUrl = "http://localhost:3005/api/tareas";
+      const fetchUrl = "/tareas";
       async function fetchData(){
         const data = await Axios.get(fetchUrl);
         setTareas(data.data);
@@ -298,7 +298,7 @@ const loadListProyectos = async () => {
     }
     fetchData();
     }else{
-      const fetchUrl = `http://localhost:3005/api/tareas/byUser_AsignedTo/${auth().userID}`;
+      const fetchUrl = `/tareas/byUser_AsignedTo/${auth().userID}`;
       async function fetchData(){
         const data = await Axios.get(fetchUrl);
         setTareas(data.data);
@@ -401,7 +401,7 @@ return (
   <ListarTareas
   //nameFilter={searchQuery}
   tareas={search(filteredList)}
-  userRole={auth().userRole}
+  userRole={auth().role}
   handleViewTarea={handleViewTarea}
   handleEditTareaForm={handleEditTareaForm}
   handleDelete={handleDelete}

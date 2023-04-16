@@ -2,13 +2,6 @@ const ListarServicios = ({servicios, handleEditServicioForm, handleDelete}) => {
 
   return (
     <>
-    {/* <td>{servicio.nombre}</td>
-    <td><span>Edit</span>
-    <span className='danger'>Delete</span></td> */}
-    {/* {currentServicios.filter(row=>row.nombre.toLowerCase().indexOf(searchQuery) > - 1).map((item, index) => { */}
-    
-    {/* {servicios.map((servicio)=>( */}
-    {/* {servicios.filter(row=>row.nombre.toLowerCase().indexOf(nameFilter) > - 1).map((servicio)=>( */}
     {servicios.map((servicio)=>(
         <tr key={servicio.s_id}>
             <td>{servicio.nombre}</td>
