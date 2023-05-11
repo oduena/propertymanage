@@ -40,7 +40,7 @@ const [editFormData, setEditFormData] = useState({
     asignadapor: '',
     asignadaa: '',
     fechaasignada: '',
-    fechaterminada: '', 
+    fechaterminada: '',
     estado: ''
 });
 
@@ -124,7 +124,7 @@ const handleEditFormClick = (input) => (e) => {
   }
 
 const handleAddTarea = (e) => {
-    console.log(addTarea);
+    //console.log(addTarea);
     e.preventDefault();
     const newTarea = {
         p_id : addTarea.p_id,

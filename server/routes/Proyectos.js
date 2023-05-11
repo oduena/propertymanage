@@ -64,7 +64,7 @@ router.get("/tareasbyproyecto/:id",(req,res) =>{
 
 router.get("/dashboard", (req, res) => {
     
-   const getsql=("SELECT p_id,nombre,fechainicio,fechavence, datediff(fechavence,CURRENT_DATE) as daysleft FROM proyectos WHERE estado='Activo' ORDER BY fechavence ASC LIMIT 40");
+   const getsql=("SELECT p_id,nombre,fechainicio,fechavence, datediff(fechavence,CURRENT_DATE) as daysleft FROM proyectos WHERE estado='Activo' ORDER BY fechavence ASC LIMIT 10");
     db.query(getsql, async (err, result) => {
         if(err){
             console.log(err);
