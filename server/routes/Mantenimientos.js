@@ -457,7 +457,7 @@ router.get("/calendar/byYear/:yearid", (req, res) => {
     INNER JOIN proyectos p ON p.p_id = man.p_id\
     INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
     WHERE man.fecha >= '${yearid}-01-01' AND man.fecha <= '${yearid}-12-31' AND man.estado <> 'Ejecutado' AND p.estado='Activo'\
-    GROUP BY man.hora,proveedor,servicio\
+    GROUP BY man.m_id,man.hora,proveedor,servicio\
     ORDER BY man.fecha ASC,proyecto,proveedor`;
     db.query(getsql, async (err, result) => {
        if(err){
@@ -489,7 +489,7 @@ router.get("/calendar/byP_Id/:id", (req, res) => {
     INNER JOIN proyectos p ON p.p_id = man.p_id\
     INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
     WHERE man.fecha >= '${currentyear}-01-01' AND man.fecha <= '${currentyear}-12-31' AND man.estado <> 'Ejecutado' AND p.estado='Activo' AND p.p_id=${id}\
-    GROUP BY man.hora,proveedor,servicio\
+    GROUP BY man.m_id,man.hora,proveedor,servicio\
     ORDER BY man.fecha,proyecto,proveedor`;
     db.query(getsql, async (err, result) => {
        if(err){
@@ -526,7 +526,7 @@ router.get("/calendar/byYearbyPid", (req, res) => {
     INNER JOIN proyectos p ON p.p_id = man.p_id\
     INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
     WHERE man.fecha >= '${yearid}-01-01' AND man.fecha <= '${yearid}-12-31' AND man.estado <> 'Ejecutado' AND p.estado='Activo' AND p.p_id=${p_id}\
-    GROUP BY man.hora,proveedor,servicio\
+    GROUP BY man.m_id,man.hora,proveedor,servicio\
     ORDER BY man.fecha ASC,proyecto,proveedor`);
     db.query(getsql, async(err, result) => {
         res.json(result);
