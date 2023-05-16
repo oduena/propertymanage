@@ -425,7 +425,7 @@ router.get("/calendar", (req, res) => {
     INNER JOIN proyectos p ON p.p_id = man.p_id\
     INNER JOIN proveedores prov ON prov.pv_id = man.pv_id\
     WHERE man.fecha >= '${currentyear}-01-01' AND man.fecha <= '${currentyear}-12-31' AND man.estado <> 'Ejecutado' AND p.estado='Activo'\
-    GROUP BY man.m_id,man.hora,proveedor,servicio\
+    GROUP BY man.hora,proveedor,servicio\
     ORDER BY man.fecha ASC,proyecto,proveedor`;
     db.query(getsql, async (err, result) => {
        if(err){
