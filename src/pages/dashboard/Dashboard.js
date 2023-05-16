@@ -310,7 +310,7 @@ return (
                         <i className="fas fa-bell"></i>
                         </div>
                         <div className="message">
-                            <p><b>Diana Ross</b> Received her order if the Night Lion tech GPS drone</p>
+                            <p><b>Monica Rios</b> Actualizo el Proyecto 'Edificio Antakia'</p>
                             <small className="text-muted">2 minutes ago</small>
                         </div>
                     </div>
@@ -319,14 +319,14 @@ return (
                         <i className="fas fa-bell"></i>
                         </div>
                         <div className="message">
-                            <p><b>Yeny Mora</b> Received her order if the Night Lion tech GPS drone</p>
+                            <p><b>Yeny Mora</b> Creo la tarea 'Tarea 3334'</p>
                             <small className="text-muted">2 minutes ago</small>
                         </div>
                     </div>
                 </div>
             </div>
             <div className="sales-analytics">
-                <h2>Sales Analytics</h2>
+                <h2>Otra Informacion General</h2>
                 <div className="item online">
                     <div className="icon">
                         {/* <span className="material-icons-sharp">shopping_cart</span> */}

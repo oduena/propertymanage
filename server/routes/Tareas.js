@@ -52,9 +52,7 @@ router.get("/ByP_idbyUser_Asigned", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-    //console.log(req);
-    // const proyecto = req.body;
-   // console.log(req.body);
+
    const createdat = new Date()
      const {p_id,descripcion, asignadapor, asignadaa, fechaasignada, estado} = req.body;
      const addTareasql = "INSERT INTO tareas (p_id,descripcion,asignadapor,asignadaa,fechaasignada,estado) VALUES (?,?,?,?,?,?)";
@@ -104,8 +102,7 @@ router.put("/editarTarea/:id", (req, res) => {
 
 router.delete("/borrarTarea/:id", (req, res) => {
     const id = req.params.id;
-    //const {nombre} = req.body;
-    //console.log(id,nombre);
+
     const deleteServicioSql = (`UPDATE tareas SET estado="Ejecutada" WHERE t_id=?`);
        db.query(deleteServicioSql, [id], (err, result) => {
        if (err) {
