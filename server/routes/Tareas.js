@@ -103,7 +103,7 @@ router.put("/editarTarea/:id", (req, res) => {
 router.delete("/borrarTarea/:id", (req, res) => {
     const id = req.params.id;
 
-    const deleteServicioSql = (`UPDATE tareas SET estado="Ejecutada" WHERE t_id=?`);
+    const deleteServicioSql = (`DELETE FROM tareas WHERE t_id=?`);
        db.query(deleteServicioSql, [id], (err, result) => {
        if (err) {
            console.log(err);

@@ -547,7 +547,7 @@ router.get("/getMantenimientoNotasBym_id/:id", (req, res) => {
 
 router.delete("/borrarMantenimiento/:id", (req, res) =>{
     const id = req.params.id;
-    const deletesql = (`UPDATE mantenimientos SET estado="Ejecutado" WHERE m_id=?`);
+    const deletesql = (`DELETE FROM mantenimientos WHERE m_id=?`);
     db.query(deletesql, [id], (err, result) =>{
         if (err){
             console.log(err);
