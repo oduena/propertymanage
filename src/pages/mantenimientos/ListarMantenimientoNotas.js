@@ -7,7 +7,7 @@ return (
  <div className="notas-container">
 {mantenimientonotas.map((nota)=>(
     
-    <div className="card shadow mb-2">
+    <div className="card shadow mb-2" key={nota.mn_id}>
      <div className="row">
      <div className="col-6">Usuario : {nota.u_nombre}</div>          
      <div className="col-6">Fecha & Hora: {moment(nota.created_at).format('YYYY-MM-DD HH:mm') }</div>

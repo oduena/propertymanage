@@ -108,7 +108,7 @@ router.delete("/borrarTarea/:id", (req, res) => {
        if (err) {
            console.log(err);
        }
-       res.status(200).json({ message: "Servicio ha sido Eliminado!"});
+       res.status(200).json({ message: "Tarea ha sido Eliminada!"});
        //res.json(result);
    })
 });

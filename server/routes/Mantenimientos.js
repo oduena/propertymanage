@@ -545,7 +545,17 @@ router.get("/getMantenimientoNotasBym_id/:id", (req, res) => {
     })
 });
 
-
+router.delete("/borrarMantenimiento/:id", (req, res) =>{
+    const id = req.params.id;
+    const deletesql = (`UPDATE mantenimientos SET estado="Ejecutado" WHERE m_id=?`);
+    db.query(deletesql, [id], (err, result) =>{
+        if (err){
+            console.log(err);
+        }
+        res.json(result);
+    })
+    });
+    
 // router.put("/editarMantenimientos", (req, res) => {
 //     const pv_id = req.params.pv_id;
 //     const s_id = req.params.s_id;
