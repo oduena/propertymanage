@@ -7,6 +7,7 @@ import ListarMantenimientosCal from "./ListarMantenimientosCal";
 import ListarMantenimientoNotas from "./ListarMantenimientoNotas";
 import moment from "moment";
 import Swal from 'sweetalert2';
+import {useAuthUser} from 'react-auth-kit'
 //import AuthContext from "../../context/AuthProvider";
 
 const Mantenimientos = () => {
@@ -32,6 +33,7 @@ const Mantenimientos = () => {
     const [seguimientoNota, setSeguimientoNota] = useState("");
     const [seguimientoNotas, setSeguimientoNotas] = useState([]);
     //const { auth } = useContext(AuthContext);
+    const auth = useAuthUser();
     const [addMantenimiento, setAddMantenimiento] = useState({
         p_id: '',
         pv_id: '',
@@ -270,7 +272,7 @@ setServicio(...response.data);
       const newMantNota = {
         m_id : ViewFormData.m_id,
         mant_nota : seguimientoNota,
-        username : 'Omar Duenas'
+        username : auth()?.user
       }
 
       //Axios.post('http://localhost:3005/api/mantenimientos/AddMantenientoNotas',{
@@ -741,7 +743,7 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
    <div className="col">
    <div className="form-group">
      <label htmlFor="Fecha" className="form-label">Fecha</label>
-     <input type="date" name="fecha" id="fecha" className="form-control"
+     <input type="date" name="fecha" id="fecha" className="form-control" required
      //value=""
      onChange={handleChange("fecha")}
      ></input>
@@ -750,7 +752,7 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
    <div className="col">
    <div className="form-group">
      <label htmlFor="Hora" className="form-label">Hora</label>
-     <input type="text" name="hora" id="hora" className="form-control" placeholder="Entre la Hora del Mantenimiento"
+     <input type="text" name="hora" id="hora" className="form-control" placeholder="Hora del Mantenimiento" required
      //value=""
      onChange={handleChange("hora")}
      ></input>
@@ -773,7 +775,7 @@ var filteredList = useMemo(getFilteredList, [selectedProyecto, Mantenimientos]);
    </div>
    <div className="modal-footer">
   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-<button type="submit" className="btn btn-primary" data-bs-dismiss="modal">Guardar</button>
+<button type="submit" className="btn btn-primary">Guardar</button>
 </div>
    </div>
   </form>
